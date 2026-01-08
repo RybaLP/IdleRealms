@@ -2,6 +2,7 @@ package com.ide.realms.IdieRealms.hero;
 
 import com.ide.realms.IdieRealms.hero.dto.HeroFinalStatsDto;
 import com.ide.realms.IdieRealms.item.Item;
+import com.ide.realms.IdieRealms.shared.DamageResult;
 import com.ide.realms.IdieRealms.shared.HeroClass;
 import com.ide.realms.IdieRealms.shared.ItemType;
 import jakarta.persistence.*;
@@ -27,6 +28,10 @@ public class Hero {
     private HeroClass heroClass;
 
 //    info
+
+    @Column(unique = true, nullable = false)
+    private String nickname;
+
     @Builder.Default
     private int level = 1;
 
@@ -113,7 +118,9 @@ public class Hero {
         return this.getConstitution() * multiplier * (this.getLevel() + 1);
     }
 
-    public int calculateDamage() {
+    public DamageResult calculateDamage() {
+
+        var didCrit = false;
 
         int damageStat = switch (this.heroClass) {
             case WARRIOR -> this.strength + bonusStrength;
@@ -134,9 +141,10 @@ public class Hero {
 //        crit damage chance
         if (Math.random() * 100 < this.luck + this.bonusLuck) {
             finalDamage *= 2;
+            didCrit = true;
         }
 
-        return Math.max(1,finalDamage);
+        return new DamageResult(Math.max(1,finalDamage) , didCrit);
     }
 
     private void applyItemStats (Item item) {
