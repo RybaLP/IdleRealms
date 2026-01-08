@@ -27,4 +27,7 @@ public class RegisterRequest {
 
     @NotNull(message = "You must select class")
     private HeroClass heroClass;
+
+    @NotBlank(message = "Hero nickname must be provided")
+    private String heroNickname;
 }

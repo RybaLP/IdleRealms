@@ -41,6 +41,7 @@ public class AuthService {
 //        building object and saving to database
         Hero hero = Hero.builder()
                 .heroClass(registerRequest.getHeroClass())
+                .nickname(registerRequest.getHeroNickname())
                 .build();
 
         Account account = Account.builder()
