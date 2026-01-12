@@ -8,5 +8,7 @@ public record MonsterFinalStatsDto(
         int luck,
         int totalArmor,
         int maxHp,
-        int level
+        int level,
+        int goldReward,
+        int expReward
 ) {}

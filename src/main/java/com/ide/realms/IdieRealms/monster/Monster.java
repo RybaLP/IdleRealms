@@ -2,6 +2,7 @@ package com.ide.realms.IdieRealms.monster;
 
 import com.ide.realms.IdieRealms.item.Item;
 import com.ide.realms.IdieRealms.monster.dto.MonsterFinalStatsDto;
+import com.ide.realms.IdieRealms.shared.DamageResult;
 import com.ide.realms.IdieRealms.shared.HeroClass;
 import com.ide.realms.IdieRealms.shared.MonsterType;
 import jakarta.persistence.*;
@@ -13,7 +14,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Monster {
+public class Monster implements Combatant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -59,7 +60,11 @@ public class Monster {
         return this.getConstitution() * multiplier * (this.getLevel() + 1);
     }
 
-    public int calculateDamage () {
+    @Override
+    public DamageResult calculateDamage () {
+
+        var didCrit = false;
+
         int damageStat = switch (this.getMonsterClass()) {
             case WARRIOR -> this.strength;
             case SCOUT -> this.dexterity;
@@ -77,12 +82,14 @@ public class Monster {
 //        crit chance
         if (Math.random() * 100 < this.luck) {
             finalDamage *= 2;
+            didCrit = true;
         }
 
-        return Math.max(1,finalDamage);
+        return new DamageResult(Math.max(1,finalDamage) , didCrit);
     }
 
-    public MonsterFinalStatsDto getMonsterFinalStats () {
+    @Override
+    public MonsterFinalStatsDto getFinalStats () {
         return new MonsterFinalStatsDto(
                 this.strength,
                 this.dexterity,
@@ -91,7 +98,24 @@ public class Monster {
                 this.luck,
                 this.totalArmor,
                 this.calculateFullHp(),
-                this.level
+                this.level,
+                this.goldReward,
+                this.expReward
         );
+    }
+
+    @Override
+    public String getImageUrl() {
+        return this.imageUrl;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public HeroClass getHeroClass () {
+        return this.monsterClass;
     }
 }
