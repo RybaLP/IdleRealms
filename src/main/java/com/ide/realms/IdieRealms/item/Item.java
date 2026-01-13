@@ -17,6 +17,8 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String imageUrl;
+
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -47,5 +49,4 @@ public class Item {
 //    buy requirements
     private int price;
     private int requiredLevel;
-
 }
