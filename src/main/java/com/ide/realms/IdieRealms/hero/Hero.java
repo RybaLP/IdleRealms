@@ -8,6 +8,7 @@ import com.ide.realms.IdieRealms.shared.ItemType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,6 +97,13 @@ public class Hero {
     private int bonusLuck;
 
     private int totalArmor;
+
+
+//    tavern
+    @Builder.Default
+    private int energy = 100;
+
+    private LocalDateTime questFinishTime;
 
 
 //    methods
