@@ -44,9 +44,19 @@ public class QuestService {
                 baseMonster,heroLevel,difficulty
         );
 
-        int durationInSeconds = (int) (120 * difficulty);
+        int energyCost;
 
-        durationInSeconds = Math.min(durationInSeconds, 180);
+        if (difficulty < 1.0) {
+            energyCost = 5;
+        }
+
+        else if (difficulty > 1.0) {
+            energyCost = 15;
+        } else {
+            energyCost = 10;
+        }
+
+        int durationInSeconds = energyCost * 30;
 
         return new QuestOfferDto(
                 baseMonster.getId(),
@@ -56,7 +66,8 @@ public class QuestService {
                 tavernMonster.getFinalStats().goldReward(),
                 tavernMonster.getFinalStats().expReward(),
                 durationInSeconds,
-                difficulty
+                difficulty,
+                energyCost
         );
     }
 }

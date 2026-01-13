@@ -8,5 +8,6 @@ public record QuestOfferDto(
         int goldReward,
         int expReward,
         int durationInSeconds,
-        double difficulty
+        double difficulty,
+        int energyCost
 ){}
