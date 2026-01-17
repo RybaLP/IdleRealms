@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,9 +23,14 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/api/register")
-    public ResponseEntity<String> registerAccount (@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<Map<String,String>> registerAccount (@Valid @RequestBody RegisterRequest registerRequest) {
         authService.registerPlayer(registerRequest);
-        return ResponseEntity.ok("Account registered successfuly");
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Account registered successfully");
+        response.put("success", "true");
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/api/login")
