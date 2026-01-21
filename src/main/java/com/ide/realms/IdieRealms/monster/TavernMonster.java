@@ -40,7 +40,7 @@ public class TavernMonster implements Combatant{
     }
 
     private int calculateExpReward(int heroLvl, double diff) {
-        double baseExp = Math.pow(heroLvl, 1.1) * 40;
+        double baseExp = Math.pow(heroLvl, 1.2) * 60;
 
         double randomness = 0.95 + (Math.random() * 0.1);
         return (int) (baseExp * diff * randomness);

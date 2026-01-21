@@ -3,7 +3,7 @@ package com.ide.realms.IdieRealms.battle;
 import com.ide.realms.IdieRealms.battle.dto.BattleTurnDto;
 import com.ide.realms.IdieRealms.battle.dto.PVEbattleResult;
 import com.ide.realms.IdieRealms.hero.Hero;
-import com.ide.realms.IdieRealms.monster.Monster;
+import com.ide.realms.IdieRealms.monster.Combatant;
 import com.ide.realms.IdieRealms.shared.DamageResult;
 import com.ide.realms.IdieRealms.shared.HeroClass;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class BattleService {
 
 
     @Transactional
-    public PVEbattleResult fightAgainstNpc (Hero hero, Monster monster) {
+    public PVEbattleResult fightAgainstNpc (Hero hero, Combatant monster) {
 
         List<BattleTurnDto> battleLogs = new ArrayList<>();
 
@@ -34,13 +34,13 @@ public class BattleService {
         var currentHeroHp = heroStatistics.maxHp();
 
 //        monster setup
-        var monsterStatistics = monster.getMonsterFinalStats();
+        var monsterStatistics = monster.getFinalStats();
         var currentMonsterHp = monsterStatistics.maxHp();
 
 //        fight mechanic
         while (currentHeroHp > 0 && currentMonsterHp > 0) {
             DamageResult heroDamage = hero.calculateDamage();
-            boolean didDodge = checkIfDodged(monster.getMonsterClass());
+            boolean didDodge = checkIfDodged(monster.getHeroClass());
 
            if (!didDodge) {
 //               hited atack
@@ -107,8 +107,8 @@ public class BattleService {
         }
 
         boolean heroWon = currentHeroHp > 0;
-        int earnedExp = heroWon ? monster.getExpReward() : 0;
-        int earnedGold = heroWon ? monster.getGoldReward() : 0;
+        int earnedExp = heroWon ? monster.getFinalStats().expReward() : 0;
+        int earnedGold = heroWon ? monster.getFinalStats().goldReward() : 0;
 
         if (heroWon) {
             hero.setExperience(hero.getExperience() + earnedExp);
@@ -139,5 +139,4 @@ public class BattleService {
             return false;
         }
     }
-
 }

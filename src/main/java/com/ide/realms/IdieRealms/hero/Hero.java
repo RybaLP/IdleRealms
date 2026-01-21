@@ -1,5 +1,6 @@
 package com.ide.realms.IdieRealms.hero;
 
+import com.ide.realms.IdieRealms.hero.dto.BaseStatsDto;
 import com.ide.realms.IdieRealms.hero.dto.HeroFinalStatsDto;
 import com.ide.realms.IdieRealms.item.Item;
 import com.ide.realms.IdieRealms.shared.DamageResult;
@@ -108,6 +109,7 @@ public class Hero {
 
 //    methods
 
+//    exp
     public void levelUp () {
         this.level ++;
         this.strength ++;
@@ -116,6 +118,18 @@ public class Hero {
         this.luck ++;
     }
 
+    public int calculateExpNeeded () {
+        return 500 * (this.level * this.level);
+    }
+
+    public void addExperience (int amountOfExp) {
+        this.experience += amountOfExp;
+        while (this.experience >= calculateExpNeeded()) {
+            levelUp();
+        }
+    }
+
+// battle
     public int calculateFullHp () {
         int multiplier = switch (this.getHeroClass()) {
             case WARRIOR -> 5;
@@ -187,6 +201,7 @@ public class Hero {
     }
 
     public HeroFinalStatsDto getFinalStatistics () {
+        refreshBonuses();
         return new HeroFinalStatsDto(
                 this.strength + this.bonusStrength,
                 this.dexterity + this.bonusDexterity,
@@ -197,5 +212,9 @@ public class Hero {
                 this.calculateFullHp(),
                 this.level
         );
+    }
+
+    public BaseStatsDto getBaseStats () {
+        return new BaseStatsDto(this.strength,this.dexterity,this.intelligence,this.constitution,this.luck);
     }
 }
