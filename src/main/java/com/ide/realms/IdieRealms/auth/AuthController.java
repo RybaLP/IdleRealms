@@ -10,6 +10,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
@@ -18,11 +19,12 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/api/register")
+    @PostMapping("/register")
     public ResponseEntity<Map<String,String>> registerAccount (@Valid @RequestBody RegisterRequest registerRequest) {
         authService.registerPlayer(registerRequest);
 
@@ -33,7 +35,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/api/login")
+    @PostMapping("/login")
     public ResponseEntity<?> loginAccount (@Valid @RequestBody LoginRequest loginRequest) {
         String token = authService.loginPlayer(loginRequest);
 
@@ -49,4 +51,20 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body("Logged in");
     }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout () {
+        ResponseCookie responseCookie = ResponseCookie.from("jwt","")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE,responseCookie.toString())
+                .build();
+    }
+
 }
