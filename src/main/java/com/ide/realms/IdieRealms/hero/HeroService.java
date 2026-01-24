@@ -60,6 +60,9 @@ public class HeroService {
 
         hero.addExperience(expReward);
         hero.setGold(hero.getGold() + goldReward);
+
+        hero.refreshBonuses();
+        heroRepository.save(hero);
     }
 
     @Transactional
@@ -73,4 +76,5 @@ public class HeroService {
 
         hero.setEnergy(hero.getEnergy() - amount);
     }
+
 }

@@ -113,6 +113,7 @@ public class Hero {
     public void levelUp () {
         this.level ++;
         this.strength ++;
+        this.dexterity ++;
         this.intelligence ++;
         this.constitution ++;
         this.luck ++;
