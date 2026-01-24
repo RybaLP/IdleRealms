@@ -11,7 +11,11 @@ public class TavernMonster implements Combatant{
     private final MonsterFinalStatsDto stats;
     private final HeroClass monsterClass;
 
-    public TavernMonster (Monster base, int heroLevel, double diff){
+    public TavernMonster(Monster base, int heroLevel, double diff) {
+        this(base, heroLevel, diff, -1, -1);
+    }
+
+    public TavernMonster (Monster base, int heroLevel, double diff, int fixedGold, int fixedExp){
         this.baseMonster = base;
         this.monsterClass = base.getMonsterClass();
         double scale = (1 + heroLevel * 0.15) * diff;
@@ -27,8 +31,8 @@ public class TavernMonster implements Combatant{
                 (int)(base.getTotalArmor() * scale),
                 scaledHp,
                 heroLevel,
-                calculateGoldReward(heroLevel,diff),
-                calculateExpReward(heroLevel,diff)
+                fixedGold != -1 ? fixedGold : calculateGoldReward(heroLevel, diff),
+                fixedExp != -1 ? fixedExp : calculateExpReward(heroLevel, diff)
         );
     }
 

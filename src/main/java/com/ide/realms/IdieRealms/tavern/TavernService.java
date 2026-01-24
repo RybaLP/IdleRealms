@@ -5,6 +5,8 @@ import com.ide.realms.IdieRealms.activeQuest.ActiveQuestRepository;
 import com.ide.realms.IdieRealms.activeQuest.ActiveQuestService;
 import com.ide.realms.IdieRealms.activeQuest.dto.ActiveQuestDto;
 import com.ide.realms.IdieRealms.activeQuest.mapper.ActiveQuestMapper;
+import com.ide.realms.IdieRealms.auth.Account;
+import com.ide.realms.IdieRealms.auth.AccountRepository;
 import com.ide.realms.IdieRealms.exception.AccNotExist;
 import com.ide.realms.IdieRealms.exception.MonsterNotExist;
 import com.ide.realms.IdieRealms.hero.Hero;
@@ -31,22 +33,30 @@ public class TavernService {
     private final ActiveQuestRepository activeQuestRepository;
     private final ActiveQuestMapper activeQuestMapper;
     private final MonsterRepository monsterRepository;
+    private final AccountRepository accountRepository;
 
-    public TavernResponse getQuestOffers(Long heroId) {
-        ActiveQuestDto activeQuestDto = activeQuestService.getActiveQuestDtoByHeroId(heroId);
+    public TavernResponse getQuestOffers(String email) {
+
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AccNotExist(""));
+
+        ActiveQuestDto activeQuestDto = activeQuestService.getActiveQuestDtoByHeroId(account.getHero().getId());
 
         if (activeQuestDto != null) {
             return new TavernResponse(null, activeQuestDto);
         }
 
-        List<QuestOfferDto> questOffers = questService.generate3RandomQuests(heroId);
+        List<QuestOfferDto> questOffers = questService.getOrGenerateQuests(account.getHero().getId());
         return new TavernResponse(questOffers, null);
     }
 
     @Transactional
-    public ActiveQuestDto acceptQuestOffer (QuestOfferDto questOfferDto, Long heroId) {
+    public ActiveQuestDto acceptQuestOffer (QuestOfferDto questOfferDto, String email) {
 
-        Hero hero = heroRepository.findById(heroId)
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AccNotExist(""));
+
+        Hero hero = heroRepository.findById(account.getHero().getId())
                 .orElseThrow(() -> new AccNotExist("Hero with provided id does not exist"));
 
         if (activeQuestRepository.existsByHero(hero)) {
@@ -76,9 +86,11 @@ public class TavernService {
 
         activeQuestRepository.save(activeQuest);
 
+        //        clean up
+        questService.deleteQuestOffersByHeroId(account.getHero().getId());
+
         Monster monster = monsterRepository.findById(questOfferDto.monsterId())
                 .orElseThrow(() -> new MonsterNotExist("Monster with provided id does not exist"));
-
         return activeQuestMapper.isActiveQuestDto(activeQuest,monster);
     }
 }

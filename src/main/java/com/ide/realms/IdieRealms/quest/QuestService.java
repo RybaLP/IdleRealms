@@ -7,10 +7,13 @@ import com.ide.realms.IdieRealms.monster.Monster;
 import com.ide.realms.IdieRealms.monster.MonsterRepository;
 import com.ide.realms.IdieRealms.monster.TavernMonster;
 import com.ide.realms.IdieRealms.quest.dto.QuestOfferDto;
+import com.ide.realms.IdieRealms.quest.mapper.QuestMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,18 +22,42 @@ public class QuestService {
     private final QuestTemplateRepository questTemplateRepository;
     private final MonsterRepository monsterRepository;
     private final HeroRepository heroRepository;
+    private final QuestRepository questRepository;
+    private final QuestMapper questMapper;
 
-    public List<QuestOfferDto> generate3RandomQuests (Long heroId) {
+    @Transactional
+    public List<QuestOfferDto> getOrGenerateQuests (Long heroId) {
 
-        int heroLevel = heroRepository.findLevelById(heroId)
-                .orElseThrow(() -> new AccNotExist("Could not find hero with provided id"));
+        List<Quest> existingQuests = questRepository.findByHeroId(heroId);
 
-        return List.of(
-                generateRandomQuestOffer(heroLevel,0.7),
-                generateRandomQuestOffer(heroLevel,1.0),
-                generateRandomQuestOffer(heroLevel,1.3)
+        if (!existingQuests.isEmpty()) {
+            return existingQuests.stream()
+                    .map(questMapper::questToQuestOfferDto)
+                    .collect(Collectors.toList());
+        }
+
+        Hero hero = heroRepository.findById(heroId)
+                .orElseThrow(() -> new AccNotExist("Hero with provided id does not exist"));
+
+        List<QuestOfferDto> questOfferDtos = List.of(
+                generateRandomQuestOffer(hero.getLevel(), 0.7),
+                generateRandomQuestOffer(hero.getLevel(), 1.0),
+                generateRandomQuestOffer(hero.getLevel(), 1.3)
         );
+
+        List<Quest> quests = questOfferDtos.stream()
+                        .map(dto -> {
+                            Quest quest = questMapper.questOfferDtoToQuest(dto);
+                                    quest.setHero(hero);
+                                        return quest;
+                        })
+                                .collect(Collectors.toList());
+
+        questRepository.saveAll(quests);
+
+        return questOfferDtos;
     }
+
 
     private QuestOfferDto generateRandomQuestOffer (int heroLevel, double difficulty) {
 
@@ -70,4 +97,10 @@ public class QuestService {
                 energyCost
         );
     }
+
+    @Transactional
+    public void deleteQuestOffersByHeroId (Long heroId) {
+        questRepository.deleteByHeroId(heroId);
+    }
+
 }
