@@ -15,5 +15,9 @@ public record ActiveQuestDto(
         long secondsLeft,
 
         boolean completed,
-        boolean rewardsClaimed
+        boolean rewardsClaimed,
+
+        String imageUrl,
+        String title
+
 ){}

@@ -82,6 +82,8 @@ public class TavernService {
                 .difficultyMultiplier(questOfferDto.difficulty())
                 .hero(hero)
                 .rewardsClaimed(false)
+                .title(questOfferDto.title())
+                .imageUrl(questOfferDto.imageUrl())
                 .build();
 
         activeQuestRepository.save(activeQuest);

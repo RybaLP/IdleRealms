@@ -20,6 +20,9 @@ public interface ActiveQuestMapper {
 
     @Mapping(target = "secondsLeft", expression = "java(calculateSecondsLeft(activeQuest.getFinishTime()))")
     @Mapping(target = "totalDurationSeconds", expression = "java(Duration.between(activeQuest.getStartTime(), activeQuest.getFinishTime()).toSeconds())")
+
+    @Mapping(target = "imageUrl", source = "activeQuest.imageUrl")
+    @Mapping(target = "title", source = "activeQuest.title")
     ActiveQuestDto isActiveQuestDto (ActiveQuest activeQuest, Monster monster);
 
     default long calculateSecondsLeft(LocalDateTime finishTime) {

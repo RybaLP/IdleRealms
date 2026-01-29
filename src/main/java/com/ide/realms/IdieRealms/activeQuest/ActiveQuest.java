@@ -37,4 +37,7 @@ public class ActiveQuest {
 
     @Builder.Default
     private boolean rewardsClaimed = false;
+
+    private String imageUrl;
+    private String title;
 }
