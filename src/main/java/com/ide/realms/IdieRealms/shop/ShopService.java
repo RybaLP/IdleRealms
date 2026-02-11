@@ -4,9 +4,12 @@ import com.ide.realms.IdieRealms.auth.Account;
 import com.ide.realms.IdieRealms.auth.AccountRepository;
 import com.ide.realms.IdieRealms.exception.AccNotExist;
 import com.ide.realms.IdieRealms.hero.Hero;
+import com.ide.realms.IdieRealms.hero.HeroRepository;
+import com.ide.realms.IdieRealms.item.Item;
 import com.ide.realms.IdieRealms.item.ItemService;
 import com.ide.realms.IdieRealms.item.dto.ItemResponseDto;
 import com.ide.realms.IdieRealms.item.mapper.ItemMapper;
+import com.ide.realms.IdieRealms.shop.dto.PurchaseResponseDto;
 import com.ide.realms.IdieRealms.shop.dto.ShopResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class ShopService {
     private final ShopRepository shopRepository;
     private final ItemMapper itemMapper;
     private final ItemService itemService;
+    private final HeroRepository heroRepository;
 
     @Transactional
     public ShopResponseDto getHeroShop (String email) {
@@ -53,5 +57,86 @@ public class ShopService {
         List<ItemResponseDto> items = itemMapper.toListResponse(shop.getItemsInOffer());
 
         return new ShopResponseDto(items,shop.getLastRefresh());
+    }
+
+
+    @Transactional
+    public PurchaseResponseDto purchaseItem (String email, Long id) {
+
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AccNotExist("Account with provided email does not exist"));
+
+        Hero hero = account.getHero();
+
+        if (hero == null) {
+            throw new AccNotExist("Could not find hero");
+        }
+
+        int heroGold = hero.getGold();
+
+        Shop shop = shopRepository.findByHeroId(hero.getId());
+
+        if (shop == null) {
+            throw new IllegalStateException("Shop not initialized");
+        }
+
+        List<Item> offer = shop.getItemsInOffer();
+
+        int itemIndex = -1;
+
+        for (int i = 0; i < offer.size(); i++) {
+            if (offer.get(i).getId().equals(id)) {
+                itemIndex = i;
+                break;
+            }
+        }
+
+        if (itemIndex == -1) {
+            throw new IllegalStateException("Item not found in shop");
+        }
+
+        Item item = offer.get(itemIndex);
+
+        if (item == null) {
+            throw new IllegalStateException("Could not find item");
+        }
+
+        if (item.getPrice() > heroGold) {
+            throw new IllegalStateException("Hero does not have enough gold to purchase that item");
+        }
+
+        if (hero.getInventory().size() > 5) {
+            throw new IllegalStateException("Inventory is full");
+        }
+
+        Item purchasedItem = Item.builder()
+                .name(item.getName())
+                .power(item.getPower())
+                .price(item.getPrice())
+                .itemType(item.getItemType())
+                .imageUrl(item.getImageUrl())
+                .strengthBonus(item.getStrengthBonus())
+                .dexterityBonus(item.getDexterityBonus())
+                .intelligenceBonus(item.getIntelligenceBonus())
+                .constitutionBonus(item.getConstitutionBonus())
+                .luckBonus(item.getLuckBonus())
+                .heroClass(item.getHeroClass())
+                .requiredLevel(item.getRequiredLevel())
+                .build();
+
+        hero.setGold(heroGold - item.getPrice());
+        hero.getInventory().add(purchasedItem);
+
+        Item newItem = itemService.generateItemEntity(hero.getLevel(), hero.getHeroClass());
+        offer.set(itemIndex, newItem);
+
+        heroRepository.save(hero);
+        shopRepository.save(shop);
+
+        return new PurchaseResponseDto(
+                itemMapper.toListResponse(hero.getInventory()),
+                itemMapper.toListResponse(shop.getItemsInOffer()),
+                hero.getGold()
+        );
     }
 }

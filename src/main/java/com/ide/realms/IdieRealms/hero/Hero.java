@@ -41,7 +41,7 @@ public class Hero {
     private long experience = 0;
 
     @Builder.Default
-    private int gold = 10;
+    private int gold = 1000;
 
 //    stats
     @Builder.Default

@@ -25,6 +25,7 @@ public class Shop {
     private Hero hero;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "item_order")
     private List<Item> itemsInOffer;
 
     @Builder.Default

@@ -17,8 +17,7 @@ public class ItemService {
     private final ItemMapper itemMapper;
 
     public List<Item> generateItemEntities (int heroLvl, HeroClass heroClass) {
-        List<ItemTemplate> itemTemplates = itemTemplateRepository.find6RandomTemplates(heroClass.name())
-                .orElseThrow(() -> new ItemsNotFoundException("Could not find item template"));
+        List<ItemTemplate> itemTemplates = itemTemplateRepository.find6RandomTemplates(heroClass.name());
 
         return itemTemplates.stream()
                 .map(template -> createItemFromTemplate(template,heroLvl))
@@ -28,6 +27,15 @@ public class ItemService {
     public List<ItemResponseDto> generateItem(int heroLvl, HeroClass heroClass) {
         List<Item> entities = generateItemEntities(heroLvl, heroClass);
         return itemMapper.toListResponse(entities);
+    }
+
+    public Item generateItemEntity (int heroLvl, HeroClass heroClass) {
+        ItemTemplate itemTemplate = itemTemplateRepository.find6RandomTemplates(heroClass.name()).stream().findFirst()
+                .orElseThrow(() -> new IllegalStateException("Could not find item template"));
+
+        Item item = createItemFromTemplate(itemTemplate,heroLvl);
+
+        return item;
     }
 
     private Item createItemFromTemplate(ItemTemplate template, int heroLvl) {
