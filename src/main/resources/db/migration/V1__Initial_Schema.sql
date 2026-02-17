@@ -15,11 +15,35 @@ CREATE TABLE quest_template (
 
 CREATE TABLE hero (
     id BIGSERIAL PRIMARY KEY,
-    nickname VARCHAR(255) NOT NULL,
+    nickname VARCHAR(255) NOT NULL UNIQUE,
+    hero_class VARCHAR(50),
     level INT DEFAULT 1,
-    experience INT DEFAULT 0,
-    gold INT DEFAULT 0,
-    visual_config VARCHAR(255)
+    experience BIGINT DEFAULT 0,
+    gold INT DEFAULT 1000,
+
+    strength INT DEFAULT 10,
+    dexterity INT DEFAULT 10,
+    intelligence INT DEFAULT 10,
+    constitution INT DEFAULT 10,
+    luck INT DEFAULT 10,
+
+    visual_config VARCHAR(255) DEFAULT '0;0;0;0;0',
+
+    bonus_strength INT DEFAULT 0,
+    bonus_dexterity INT DEFAULT 0,
+    bonus_intelligence INT DEFAULT 0,
+    bonus_constitution INT DEFAULT 0,
+    bonus_luck INT DEFAULT 0,
+    total_armor INT DEFAULT 0,
+
+    energy INT DEFAULT 100,
+    quest_finish_time TIMESTAMP,
+
+    weapon_id BIGINT,
+    helmet_id BIGINT,
+    armor_id BIGINT,
+    gloves_id BIGINT,
+    boots_id BIGINT
 );
 
 CREATE TABLE item (
