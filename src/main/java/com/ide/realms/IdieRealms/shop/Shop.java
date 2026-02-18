@@ -25,6 +25,7 @@ public class Shop {
     private Hero hero;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "shop_id")
     @OrderColumn(name = "item_order")
     private List<Item> itemsInOffer;
 
