@@ -5,10 +5,7 @@ import com.ide.realms.IdieRealms.item.dto.SwitchItemRequestDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -22,6 +19,12 @@ public class ItemController {
     @PutMapping("/switch")
     public ResponseEntity<HeroProfileResponse> switchItem (Principal principal, @Valid @RequestBody SwitchItemRequestDto switchItemRequestDto){
         HeroProfileResponse heroProfileResponse = itemService.switchItem(principal.getName(), switchItemRequestDto.action(), switchItemRequestDto.itemId());
+        return ResponseEntity.ok(heroProfileResponse);
+    }
+
+    @DeleteMapping("/sell/{itemId}")
+    public ResponseEntity<HeroProfileResponse> sellItem (Principal principal, @PathVariable @Valid Long itemId) {
+        HeroProfileResponse heroProfileResponse = itemService.sellItem(principal.getName(), itemId);
         return ResponseEntity.ok(heroProfileResponse);
     }
 

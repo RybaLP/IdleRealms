@@ -3,6 +3,7 @@ package com.ide.realms.IdieRealms.item;
 import com.ide.realms.IdieRealms.auth.Account;
 import com.ide.realms.IdieRealms.auth.AccountRepository;
 import com.ide.realms.IdieRealms.exception.AccNotExist;
+import com.ide.realms.IdieRealms.exception.ItemsNotFoundException;
 import com.ide.realms.IdieRealms.hero.Hero;
 import com.ide.realms.IdieRealms.hero.HeroRepository;
 import com.ide.realms.IdieRealms.hero.dto.BaseStatsDto;
@@ -11,7 +12,6 @@ import com.ide.realms.IdieRealms.hero.dto.HeroProfileResponse;
 import com.ide.realms.IdieRealms.item.dto.ItemResponseDto;
 import com.ide.realms.IdieRealms.item.mapper.ItemMapper;
 import com.ide.realms.IdieRealms.shared.HeroClass;
-import com.ide.realms.IdieRealms.shared.ItemType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -191,6 +191,64 @@ public class ItemService {
         }
 
         hero.getInventory().add(item);
+    }
+
+
+    @Transactional
+    public HeroProfileResponse sellItem (String email, Long itemId) {
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AccNotExist("Account with provided email does not exist"));
+
+        Hero hero = account.getHero();
+
+        if (hero == null) throw new IllegalStateException("Hero not found");
+
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ItemsNotFoundException("Item with provided id does not exist"));
+
+        int sellPrice = (int) (item.getPrice() * 0.75);
+        hero.setGold(hero.getGold() + sellPrice);
+        hero.getInventory().remove(item);
+
+        itemRepository.delete(item);
+        heroRepository.save(hero);
+
+        return new HeroProfileResponse(
+                hero.getNickname(),
+                hero.getHeroClass(),
+                hero.getLevel(),
+                hero.getExperience(),
+                hero.getGold(),
+                hero.getEnergy(),
+                hero.getVisualConfig(),
+
+                new HeroFinalStatsDto(
+                        hero.getStrength(),
+                        hero.getDexterity(),
+                        hero.getIntelligence(),
+                        hero.getConstitution(),
+                        hero.getLuck(),
+                        hero.getTotalArmor(),
+                        hero.calculateFullHp(),
+                        hero.getLevel()
+                ),
+
+                new BaseStatsDto(
+                        hero.getBaseStats().strength(),
+                        hero.getBaseStats().dexterity(),
+                        hero.getBaseStats().intelligence(),
+                        hero.getBaseStats().constitution(),
+                        hero.getBaseStats().luck()
+                ),
+
+                itemMapper.toListResponse(hero.getInventory()),
+                itemMapper.toResponse(hero.getEquippedHelmet()),
+                itemMapper.toResponse(hero.getEquippedWeapon()),
+                itemMapper.toResponse(hero.getEquippedArmor()),
+                itemMapper.toResponse(hero.getEquippedGloves()),
+                itemMapper.toResponse(hero.getEquippedBoots())
+        );
 
     }
 }
