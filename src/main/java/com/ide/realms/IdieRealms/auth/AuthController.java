@@ -2,6 +2,7 @@ package com.ide.realms.IdieRealms.auth;
 
 import com.ide.realms.IdieRealms.auth.dto.LoginRequest;
 import com.ide.realms.IdieRealms.auth.dto.RegisterRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.PreUpdate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "Authentication", description = "Endpoints for user registration, login, and logout using JWT in HttpOnly cookies")
 public class AuthController {
 
     private final AuthService authService;

@@ -1,0 +1,11 @@
+${AnsiColor.BRIGHT_YELLOW}
+.___    .___.__            __________              .__
+|   | __| _/|  |    ____   \______   \ ____ _____  |  |   _____   ______
+|   |/ __ | |  | _/ __ \   |       _// __ \\__  \ |  |  /      \ /  ___/
+|   / /_/ | |  |_\  ___/   |    |   \  ___/ / __ \|  |_|  Y Y  \\___ \
+|___\____ | |____/\___  >  |____|_  /\___  >____  /____/__|_|  /____  >
+         \/           \/          \/      \/     \/           \/     \/
+${AnsiColor.BRIGHT_GREEN}
+ :: Idle Realms Backend :: ${spring-boot.formatted-version}
+${AnsiColor.WHITE} --- Starting System Modules...
+${AnsiColor.DEFAULT}

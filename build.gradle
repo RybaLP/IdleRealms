@@ -56,9 +56,11 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	// Lombok dla testów (żeby @Builder działał w kodzie testowym)
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
+
+//	swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
 
 }
 

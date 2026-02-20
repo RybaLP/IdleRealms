@@ -62,10 +62,10 @@ public class QuestService {
     private QuestOfferDto generateRandomQuestOffer (int heroLevel, double difficulty) {
 
         QuestTemplate questTemplate = questTemplateRepository.findRandomQuestTemplate()
-                .orElseThrow(() -> new RuntimeException(""));
+                .orElseThrow(() -> new RuntimeException("DB ERROR: Table 'quest_template' is empty!"));
 
         Monster baseMonster = monsterRepository.findRandomMonster()
-                .orElseThrow(() -> new RuntimeException(""));
+                .orElseThrow(() -> new RuntimeException("DB ERROR: Table 'monster' has no 'TAVERN' type monsters!"));
 
         TavernMonster tavernMonster = new TavernMonster(
                 baseMonster,heroLevel,difficulty

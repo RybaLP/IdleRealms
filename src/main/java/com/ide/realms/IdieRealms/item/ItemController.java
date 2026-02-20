@@ -2,6 +2,7 @@ package com.ide.realms.IdieRealms.item;
 
 import com.ide.realms.IdieRealms.hero.dto.HeroProfileResponse;
 import com.ide.realms.IdieRealms.item.dto.SwitchItemRequestDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import java.security.Principal;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/item")
+@Tag(name = "Items & Equipment", description = "Operations related to hero inventory, equipping, and selling items")
 public class ItemController {
 
     private final ItemService itemService;

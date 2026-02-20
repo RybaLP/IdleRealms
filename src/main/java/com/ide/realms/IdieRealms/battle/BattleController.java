@@ -9,6 +9,7 @@ import com.ide.realms.IdieRealms.hero.Hero;
 import com.ide.realms.IdieRealms.hero.HeroRepository;
 import com.ide.realms.IdieRealms.monster.Monster;
 import com.ide.realms.IdieRealms.monster.MonsterRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Battle", description = "Core combat mechanics and PVE encounters")
 public class BattleController {
 
     private final BattleService battleService;

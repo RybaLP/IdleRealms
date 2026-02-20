@@ -3,6 +3,7 @@ package com.ide.realms.IdieRealms.shop;
 import com.ide.realms.IdieRealms.shop.dto.PurchaseItemDto;
 import com.ide.realms.IdieRealms.shop.dto.PurchaseResponseDto;
 import com.ide.realms.IdieRealms.shop.dto.ShopResponseDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.security.Principal;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/shop")
+@Tag(name = "Shop", description = "Management of item purchases and shop inventory")
 public class ShopController {
 
     private final ShopService shopService;
