@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -43,19 +44,17 @@ public class ShopService {
 
         Shop shop = shopRepository.findByHeroId(hero.getId());
 
-        if (shop == null) {
+        if (shop == null){
 //            generate shop items and save
-            shop = Shop.builder()
-                    .hero(hero)
-                    .itemsInOffer(itemService.generateItemEntities(hero.getLevel(), hero.getHeroClass()))
-                    .lastRefresh(LocalDateTime.now())
-                    .build();
-
+            shop = Shop.builder().hero(hero).build();
+            refreshShopItems(shop,hero);
+            shop = shopRepository.save(shop);
+        } else if (shouldRefresh(shop) || shop.getItemsInOffer().isEmpty()) {
+            refreshShopItems(shop,hero);
             shop = shopRepository.save(shop);
         }
 
         List<ItemResponseDto> items = itemMapper.toListResponse(shop.getItemsInOffer());
-
         return new ShopResponseDto(items,shop.getLastRefresh());
     }
 
@@ -105,7 +104,7 @@ public class ShopService {
             throw new IllegalStateException("Hero does not have enough gold to purchase that item");
         }
 
-        if (hero.getInventory().size() > 5) {
+        if (hero.getInventory().size() >= 5) {
             throw new IllegalStateException("Inventory is full");
         }
 
@@ -128,7 +127,9 @@ public class ShopService {
         hero.getInventory().add(purchasedItem);
 
         Item newItem = itemService.generateItemEntity(hero.getLevel(), hero.getHeroClass());
-        offer.set(itemIndex, newItem);
+
+        offer.remove(itemIndex);
+        offer.add(itemIndex, newItem);
 
         heroRepository.save(hero);
         shopRepository.save(shop);
@@ -139,4 +140,22 @@ public class ShopService {
                 hero.getGold()
         );
     }
+
+    private void refreshShopItems(Shop shop, Hero hero) {
+        List<Item> newItems = itemService.generateItemEntities(hero.getLevel(), hero.getHeroClass());
+
+        shop.getItemsInOffer().clear();
+        shop.getItemsInOffer().addAll(newItems);
+        shop.setLastRefresh(LocalDateTime.now());
+    }
+
+    private boolean shouldRefresh(Shop shop) {
+        if (shop.getLastRefresh() == null) return true;
+
+        LocalDateTime lastRefresh = shop.getLastRefresh();
+        LocalDateTime lastMidnight = LocalDate.now().atStartOfDay();
+        return lastRefresh.isBefore(lastMidnight);
+    }
+
+
 }

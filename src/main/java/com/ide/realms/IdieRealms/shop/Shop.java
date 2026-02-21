@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,10 +25,11 @@ public class Shop {
     @JoinColumn(name = "hero_id")
     private Hero hero;
 
+    @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "shop_id")
     @OrderColumn(name = "item_order")
-    private List<Item> itemsInOffer;
+    private List<Item> itemsInOffer = new ArrayList<>();
 
     @Builder.Default
     private int amountOfItems = 6;

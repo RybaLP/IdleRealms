@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,10 +36,15 @@ public class TavernService {
     private final MonsterRepository monsterRepository;
     private final AccountRepository accountRepository;
 
+    @Transactional
     public TavernResponse getQuestOffers(String email) {
 
         Account account = accountRepository.findByEmail(email)
-                .orElseThrow(() -> new AccNotExist(""));
+                .orElseThrow(() -> new AccNotExist("Account not found"));
+
+        Hero hero = account.getHero();
+//        refresh energy if a new day has started
+        updateHeroEnergy(hero);
 
         ActiveQuestDto activeQuestDto = activeQuestService.getActiveQuestDtoByHeroId(account.getHero().getId());
 
@@ -58,6 +64,9 @@ public class TavernService {
 
         Hero hero = heroRepository.findById(account.getHero().getId())
                 .orElseThrow(() -> new AccNotExist("Hero with provided id does not exist"));
+
+//        ensure energy is up-to-date before validating cost
+        updateHeroEnergy(hero);
 
         if (activeQuestRepository.existsByHero(hero)) {
             throw new IllegalArgumentException("Hero is already in different mission");
@@ -94,5 +103,27 @@ public class TavernService {
         Monster monster = monsterRepository.findById(questOfferDto.monsterId())
                 .orElseThrow(() -> new MonsterNotExist("Monster with provided id does not exist"));
         return activeQuestMapper.isActiveQuestDto(activeQuest,monster);
+    }
+
+    private boolean shouldRefreshEnergy (Hero hero) {
+        if (hero.getLastEnergyUpdate() == null) {
+            return true;
+        }
+
+        LocalDateTime lastUpdate = hero.getLastEnergyUpdate();
+        LocalDateTime lastMidnight = LocalDate.now().atStartOfDay();
+
+        return lastUpdate.isBefore(lastMidnight);
+    }
+
+    @Transactional
+    private void updateHeroEnergy (Hero hero) {
+
+        if (shouldRefreshEnergy(hero)){
+            hero.setEnergy(100);
+            hero.setLastEnergyUpdate(LocalDateTime.now());
+            heroRepository.save(hero);
+        }
+
     }
 }

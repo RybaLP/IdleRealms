@@ -104,6 +104,15 @@ public class Hero {
     @Builder.Default
     private int energy = 100;
 
+//    stamina refresh
+    private LocalDateTime lastEnergyUpdate;
+
+    @PrePersist
+    protected void onCreate() {
+        this.lastEnergyUpdate = LocalDateTime.now();
+    }
+
+
     private LocalDateTime questFinishTime;
 
 

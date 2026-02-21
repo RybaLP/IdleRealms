@@ -16,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class ItemService {
 
         return itemTemplates.stream()
                 .map(template -> createItemFromTemplate(template,heroLvl))
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public List<ItemResponseDto> generateItem(int heroLvl, HeroClass heroClass) {
