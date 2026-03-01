@@ -6,6 +6,7 @@ import com.ide.realms.IdieRealms.exception.AccNotExist;
 import com.ide.realms.IdieRealms.exception.AccountAlreadyExists;
 import com.ide.realms.IdieRealms.exception.InvalidPassword;
 import com.ide.realms.IdieRealms.hero.Hero;
+import com.ide.realms.IdieRealms.infrastructure.adapters.out.kafka.PlayerCreationEventPublisher;
 import com.ide.realms.IdieRealms.shared.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,7 @@ public class AuthService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final PlayerCreationEventPublisher playerCreationEventPublisher;
 
     @Transactional
     public void registerPlayer (RegisterRequest registerRequest) {
@@ -53,6 +55,8 @@ public class AuthService {
                 .build();
 
         accountRepository.save(account);
+        playerCreationEventPublisher.publishPlayerCreated(hero.getSocialId(), hero.getNickname());
+
     }
 
 

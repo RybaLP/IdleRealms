@@ -4,13 +4,11 @@ import com.ide.realms.IdieRealms.auth.Account;
 import com.ide.realms.IdieRealms.auth.AccountRepository;
 import com.ide.realms.IdieRealms.exception.AccNotExist;
 import com.ide.realms.IdieRealms.hero.dto.HeroProfileResponse;
-import com.ide.realms.IdieRealms.item.Item;
+import com.ide.realms.IdieRealms.infrastructure.adapters.out.kafka.GuildEventPublisher;
 import com.ide.realms.IdieRealms.item.mapper.ItemMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +17,7 @@ public class HeroService {
     private final HeroRepository heroRepository;
     private final ItemMapper itemMapper;
     private final AccountRepository accountRepository;
+    private final GuildEventPublisher guildEventPublisher;
 
     public HeroProfileResponse getHeroInfo (String email) {
 
@@ -77,4 +76,28 @@ public class HeroService {
         hero.setEnergy(hero.getEnergy() - amount);
     }
 
+
+//     guild
+    @Transactional
+    public void depositGoildToGuild (long amount, String email) {
+
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AccNotExist("Account with provided ID does not exist"));
+
+        Hero hero = account.getHero();
+
+        if (hero == null) {
+            throw new RuntimeException("Hero does not exist");
+        }
+
+        if (hero.getGold() < amount) {
+            throw new IllegalArgumentException("Hero does not have enough gold to deposit");
+        }
+
+        hero.setGold(hero.getGold() - (int) amount);
+
+        heroRepository.save(hero);
+
+        guildEventPublisher.depositGold(hero.getSocialId(),amount);
+    }
 }

@@ -8,10 +8,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface HeroRepository extends JpaRepository<Hero, Long> {
 
     @Query("SELECT h.level FROM Hero h WHERE h.id = :heroId")
     Optional<Integer> findLevelById(Long heroId);
-
+    Optional<Hero> findBySocialId(UUID playerId);
 }

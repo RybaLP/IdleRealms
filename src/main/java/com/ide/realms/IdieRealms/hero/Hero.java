@@ -12,6 +12,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Builder
@@ -24,6 +25,10 @@ public class Hero {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, nullable = false,name = "social_id")
+    @Builder.Default
+    private UUID socialId = UUID.randomUUID();
 
 //    class
     @Enumerated(EnumType.STRING)
