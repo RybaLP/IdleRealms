@@ -1,1 +1,2 @@
 rootProject.name = 'IdieRealms'
+include 'social-service'
