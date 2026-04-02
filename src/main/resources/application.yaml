@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: IdleRealms
+  datasource:
+    url: jdbc:postgresql://localhost:5433/IdleRealms
+    username: postgres
+    password: elozelo
+    driver-class-name: org.postgresql.Driver
+
+  kafka:
+    bootstrap-servers: kafka:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: "playerCreated:com.ide.realms.IdieRealms.infrastructure.adapters.out.kafka.events.PlayerCreatedEvent,playerGold:com.ide.realms.IdieRealms.infrastructure.adapters.out.kafka.dto.PlayerGoldEvent"
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+kafka:
+  topics:
+    player-register: player-register-event
+
+app:
+  jwt:
+    secret: "TwojBardzoDlugiSekretnyKluczKtoryMaPrzynajmniejTrzystaBitowMocy12345678"
+    expiration: 86400000
+    issuer: "idie-realms-backend"
+    audience: "idie-realms-frontend"
