@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS players (
+    social_id UUID PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    guild_id UUID,
+    cached_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
