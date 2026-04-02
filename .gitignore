@@ -46,6 +46,3 @@ gradlew.bat
 # System files
 .DS_Store
 Thumbs.db
-
-# app properties
-src/main/resources/application.yaml

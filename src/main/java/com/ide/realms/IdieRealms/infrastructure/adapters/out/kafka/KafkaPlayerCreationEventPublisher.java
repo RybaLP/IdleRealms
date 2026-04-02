@@ -1,9 +1,9 @@
 package com.ide.realms.IdieRealms.infrastructure.adapters.out.kafka;
 
-import com.ide.realms.IdieRealms.infrastructure.adapters.out.kafka.dto.HeroCreatedEvent;
 import com.ide.realms.IdieRealms.infrastructure.adapters.out.kafka.events.PlayerCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,9 @@ import java.util.UUID;
 public class KafkaPlayerCreationEventPublisher implements PlayerCreationEventPublisher{
 
     private final KafkaTemplate<String,Object> kafkaTemplate;
-    private static final String TOPIC = "player-register-event";
+
+    @Value("${kafka.topics.player-register}")
+    private String TOPIC;
 
     @Override
     public void publishPlayerCreated(UUID socialId, String nickname) {
