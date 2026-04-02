@@ -14,18 +14,27 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "guilds")
 public class GuildEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(unique = true, nullable = false)
     private String name;
 
-    private UUID ownerId;
+    @Column(name = "owner_id")
+    private UUID ownerSocialId;
 
-    private long goldVault = 0;
-    private int instructorLvl = 1;
+    @Column(name = "total_gold")
+    private int totalGold;
+
+    @Column(name = "coach_level")
+    private int coachLevel;
+
+    @ElementCollection
+    @CollectionTable(name = "guild_members", joinColumns = @JoinColumn(name = "guild_id"))
+    @Column(name = "player_social_id")
+    private List<UUID> memberSocialIds;
 
 }
