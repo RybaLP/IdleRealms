@@ -6,7 +6,7 @@ public class Player {
 
     private final UUID socialId;
     private final String username;
-    private final UUID guildId;
+    private UUID guildId;
 
     public Player(UUID socialId, String username) {
         this.socialId = socialId;
@@ -24,6 +24,10 @@ public class Player {
 
     public UUID getGuildId() {
         return guildId;
+    }
+
+    public void setGuildId (UUID guildId) {
+        this.guildId = guildId;
     }
 
 
