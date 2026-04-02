@@ -110,6 +110,7 @@ public class Hero {
     private int energy = 100;
 
 //    stamina refresh
+    @Column(name = "last_energy_update")
     private LocalDateTime lastEnergyUpdate;
 
     @PrePersist

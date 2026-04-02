@@ -9,12 +9,16 @@ import com.ide.realms.IdieRealms.hero.Hero;
 import com.ide.realms.IdieRealms.infrastructure.adapters.out.kafka.PlayerCreationEventPublisher;
 import com.ide.realms.IdieRealms.shared.Role;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final AccountRepository accountRepository;
@@ -31,9 +35,7 @@ public class AuthService {
                     throw new AccountAlreadyExists("Account with provided email already exists");
                 });
 
-        var existingNIckname = accountRepository.existsByNickname(registerRequest.getNickname());
-
-        if (existingNIckname) {
+        if (accountRepository.existsByNickname(registerRequest.getNickname())) {
             throw new AccountAlreadyExists("Account with provided nickname already exists");
         }
 
@@ -54,8 +56,14 @@ public class AuthService {
                 .password(encodedPassword)
                 .build();
 
-        accountRepository.save(account);
-        playerCreationEventPublisher.publishPlayerCreated(hero.getSocialId(), hero.getNickname());
+        log.info("💾 Saving account and hero to database...");
+        Account savedAccount = accountRepository.save(account);
+
+        UUID socialId = savedAccount.getHero().getSocialId();
+        String nickname = savedAccount.getHero().getNickname();
+
+        log.info("Attempting to publish to Kafka. SocialId: {}", socialId);
+        playerCreationEventPublisher.publishPlayerCreated(socialId, nickname);
 
     }
 
