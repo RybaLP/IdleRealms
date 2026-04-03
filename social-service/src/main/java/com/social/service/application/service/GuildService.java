@@ -3,6 +3,7 @@ package com.social.service.application.service;
 import com.social.service.domain.model.Guild;
 import com.social.service.domain.model.Player;
 import com.social.service.domain.port.in.CreateGuildUseCase;
+import com.social.service.domain.port.in.KickFromGuildUseCase;
 import com.social.service.domain.port.out.GuildRepository;
 import com.social.service.domain.port.out.PlayerRepository;
 import com.social.service.infrastructure.adapters.out.kafka.producers.GuildEventProducer;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class GuildService implements CreateGuildUseCase {
+public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase {
 
     private final PlayerRepository playerRepository;
     private final GuildRepository guildRepository;
@@ -49,5 +50,21 @@ public class GuildService implements CreateGuildUseCase {
 
         guildEventProducer.notifyGuildCreated(guild.getId(), guild.getOwnerSocialId(), guild.getName());
         log.info("Guild {} created by player {}", name, ownerSocialId);
+    }
+
+
+    @Transactional
+    @Override
+    public void kickFromGuild (UUID ownerSocialId, UUID memberSocialId, UUID guildId) {
+
+        Guild guild = guildRepository.findById(guildId)
+                .orElseThrow(() -> new EntityNotFoundException("Could not find guild with provided id"));
+
+        if (!guild.getOwnerSocialId().equals(ownerSocialId)) {
+            throw new RuntimeException("Only the guild owner can kick members.");
+        }
+
+        guild.kickMember(memberSocialId);
+        guildRepository.save(guild);
     }
 }
