@@ -3,13 +3,14 @@ package com.social.service.domain.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Guild {
 
     private final UUID id;
     private final String name;
     private final UUID ownerSocialId;
-    private final List<UUID> memberSocialIds;
+    private  List<UUID> memberSocialIds;
     private int totalGold;
     private int coachLevel;
 
@@ -63,6 +64,17 @@ public class Guild {
                 0,
                 0
         );
+    }
+
+    public void kickMember (UUID memberSocialid) {
+
+        if (this.ownerSocialId.equals(memberSocialid)) {
+            throw new IllegalArgumentException("Owner cannot be kicked from the guild");
+        }
+
+        this.memberSocialIds = this.memberSocialIds.stream()
+                .filter(id -> !id.equals(memberSocialid))
+                .collect(Collectors.toList());
     }
 
     public void addMember (UUID playerSocialId) {
