@@ -1,11 +1,9 @@
 package com.social.service.infrastructure.adapters.in.rest;
 
-import com.social.service.application.service.MessageService;
 import com.social.service.domain.model.Message;
-import com.social.service.domain.port.in.GetPlayerInboxUseCase;
-import com.social.service.domain.port.in.SendGuildInvitationUseCase;
-import com.social.service.domain.port.in.SendMessageUseCase;
+import com.social.service.domain.port.in.*;
 import com.social.service.infrastructure.adapters.in.dto.GuildInvitationRequestDto;
+import com.social.service.infrastructure.adapters.in.dto.GuildInvitationResponseDto;
 import com.social.service.infrastructure.adapters.in.dto.MessageDto;
 import com.social.service.infrastructure.adapters.in.dto.MessageRequestDto;
 import com.social.service.infrastructure.adapters.out.persistance.mappers.MessageMapper;
@@ -26,8 +24,10 @@ public class MessageController {
     private final SendMessageUseCase sendMessageUseCase;
     private final SendGuildInvitationUseCase sendInvitationUseCase;
     private final GetPlayerInboxUseCase getInboxUseCase;
-    private final MessageMapper messageMapper;
+    private final RemoveMessageUseCase removeMessageUseCase;
+    private final HandleGuildInvitationUseCase handleGuildInvitationUseCase;
 
+    private final MessageMapper messageMapper;
 
     @GetMapping("/{socialid}")
     public ResponseEntity<List<MessageDto>> getMessagesBySocialId (
@@ -45,10 +45,24 @@ public class MessageController {
     }
 
 
-    @PostMapping("/guild-invitation")
+    @PostMapping("/invitation")
     public ResponseEntity<Void> sendGuildInvitation (@RequestBody @Valid GuildInvitationRequestDto guildInvitationRequestDto) {
         sendInvitationUseCase.sendInvitation(guildInvitationRequestDto.ownerSocialId(), guildInvitationRequestDto.recipientSocialId(), guildInvitationRequestDto.guildId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @DeleteMapping("/{messageId}")
+    public ResponseEntity<Void> removeMessage (@PathVariable UUID messageId,@RequestParam UUID socialId) {
+        removeMessageUseCase.removeMessage(messageId, socialId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{messageId}/invitation")
+    public ResponseEntity<Void> handleInvitation (@PathVariable UUID messageId,@RequestParam UUID socialId,
+    @RequestBody @Valid GuildInvitationResponseDto responseDto) {
+        handleGuildInvitationUseCase.handleGuildInvitation(messageId,socialId,responseDto);
+        return ResponseEntity.noContent().build();
+    }
+
 
 }
