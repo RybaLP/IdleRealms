@@ -87,4 +87,17 @@ public class Guild {
         }
     }
 
+    public void removePlayer (UUID playerSocialId) {
+
+        if (this.ownerSocialId.equals(playerSocialId)) {
+            throw new IllegalArgumentException("Owner cannot leave the guild. Transfer ownership or delete guild first.");
+        }
+
+        if (!memberSocialIds.contains(playerSocialId)) {
+            throw new IllegalArgumentException("Player with provided id does not belong to that guild");
+        }
+
+        this.memberSocialIds.removeIf(id -> id.equals(playerSocialId));
+    }
+
 }

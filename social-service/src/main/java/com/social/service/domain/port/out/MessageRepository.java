@@ -9,4 +9,5 @@ public interface MessageRepository {
     void save(Message message);
     Optional<Message> findById(UUID id);
     List<Message> findByRecipientId(UUID recipientId);
+    void deleteByIdAndRecipientId(UUID messageId, UUID recipientId);
 }
