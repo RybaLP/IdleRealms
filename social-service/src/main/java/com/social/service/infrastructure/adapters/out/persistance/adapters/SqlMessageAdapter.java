@@ -39,4 +39,9 @@ public class SqlMessageAdapter implements MessageRepository {
                 .map(messageMapper::toDomain)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void deleteByIdAndRecipientId(UUID messageId, UUID recipientId) {
+        messageJpaRepository.deleteByIdAndRecipientId(messageId,recipientId);
+    }
 }

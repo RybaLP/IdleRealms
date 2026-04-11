@@ -4,6 +4,7 @@ import com.social.service.domain.model.Guild;
 import com.social.service.domain.model.Player;
 import com.social.service.domain.port.in.CreateGuildUseCase;
 import com.social.service.domain.port.in.KickFromGuildUseCase;
+import com.social.service.domain.port.in.LeaveGuildUseCase;
 import com.social.service.domain.port.out.GuildRepository;
 import com.social.service.domain.port.out.PlayerRepository;
 import com.social.service.infrastructure.adapters.out.kafka.producers.GuildEventProducer;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase {
+public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, LeaveGuildUseCase {
 
     private final PlayerRepository playerRepository;
     private final GuildRepository guildRepository;
@@ -52,6 +53,14 @@ public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase {
         log.info("Guild {} created by player {}", name, ownerSocialId);
     }
 
+    @Transactional
+    public void addMember(UUID guildId, UUID memberSocialId) {
+        Guild guild = guildRepository.findById(guildId)
+                .orElseThrow(() -> new EntityNotFoundException(""));
+
+        guild.addMember(memberSocialId);
+        guildRepository.save(guild);
+    }
 
     @Transactional
     @Override
@@ -65,6 +74,16 @@ public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase {
         }
 
         guild.kickMember(memberSocialId);
+        guildRepository.save(guild);
+    }
+
+    @Override
+    @Transactional
+    public void leave (UUID socialId, UUID guildId) {
+        Guild guild = guildRepository.findById(guildId)
+                .orElseThrow(() -> new EntityNotFoundException("Could not find guild with provided id"));
+
+        guild.removePlayer(socialId);
         guildRepository.save(guild);
     }
 }
