@@ -7,6 +7,7 @@ import com.social.service.domain.model.Player;
 import com.social.service.domain.port.in.*;
 import com.social.service.domain.port.out.GuildRepository;
 import com.social.service.domain.port.out.MessageRepository;
+import com.social.service.domain.port.out.NotificationPort;
 import com.social.service.domain.port.out.PlayerRepository;
 import com.social.service.infrastructure.adapters.in.dto.GuildInvitationResponseDto;
 import com.social.service.shared.GuildInvResponse;
@@ -30,6 +31,9 @@ public class MessageService implements SendMessageUseCase, SendGuildInvitationUs
     private final PlayerRepository playerRepository;
     private final GuildRepository guildRepository;
     private final GuildService guildService;
+
+//    web socket
+    private final NotificationPort notificationPort;
 
     @Override
     public List<Message> getInboxBySocialId (UUID socialId) {
@@ -61,6 +65,7 @@ public class MessageService implements SendMessageUseCase, SendGuildInvitationUs
         );
 
         messageRepository.save(message);
+        notificationPort.sendNotification(recipientId,"message");
     }
 
     @Override
@@ -98,6 +103,10 @@ public class MessageService implements SendMessageUseCase, SendGuildInvitationUs
         );
 
         messageRepository.save(message);
+        notificationPort.sendNotification(recipientSocialId, java.util.Map.of(
+                "subject", "Guild Invitation",
+                "content", "You were invited to the guild: " + guild.getName()
+        ));
     }
 
     @Transactional
