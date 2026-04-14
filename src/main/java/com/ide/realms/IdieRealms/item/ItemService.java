@@ -136,6 +136,9 @@ public class ItemService {
                         hero.getBaseStats().luck()
                 ),
 
+                hero.getSocialId(),
+
+
                 itemMapper.toListResponse(hero.getInventory()),
                 itemMapper.toResponse(hero.getEquippedHelmet()),
                 itemMapper.toResponse(hero.getEquippedWeapon()),
@@ -243,6 +246,8 @@ public class ItemService {
                         hero.getBaseStats().constitution(),
                         hero.getBaseStats().luck()
                 ),
+
+                hero.getSocialId(),
 
                 itemMapper.toListResponse(hero.getInventory()),
                 itemMapper.toResponse(hero.getEquippedHelmet()),

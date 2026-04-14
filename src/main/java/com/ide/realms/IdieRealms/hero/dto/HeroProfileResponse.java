@@ -4,6 +4,7 @@ import com.ide.realms.IdieRealms.item.dto.ItemResponseDto;
 import com.ide.realms.IdieRealms.shared.HeroClass;
 
 import java.util.List;
+import java.util.UUID;
 
 
 public record HeroProfileResponse(
@@ -16,6 +17,7 @@ public record HeroProfileResponse(
         String visualConfig,
         HeroFinalStatsDto stats,
         BaseStatsDto baseStats,
+        UUID socialId,
 
         List<ItemResponseDto> inventory,
         ItemResponseDto equippedHelmet,

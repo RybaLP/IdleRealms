@@ -2,6 +2,7 @@ package com.ide.realms.IdieRealms.item;
 
 import com.ide.realms.IdieRealms.shared.HeroClass;
 import com.ide.realms.IdieRealms.shared.ItemType;
+import com.ide.realms.IdieRealms.shop.Shop;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +27,10 @@ public class Item {
 
     @Enumerated(EnumType.STRING)
     private ItemType itemType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shop_id")
+    private Shop shop;
 
 //  stats
     @Builder.Default
