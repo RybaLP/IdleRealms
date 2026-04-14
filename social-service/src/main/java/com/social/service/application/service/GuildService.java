@@ -55,8 +55,9 @@ public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, L
 
     @Transactional
     public void addMember(UUID guildId, UUID memberSocialId) {
+
         Guild guild = guildRepository.findById(guildId)
-                .orElseThrow(() -> new EntityNotFoundException(""));
+                .orElseThrow(() -> new EntityNotFoundException("Guild with provided id not found"));
 
         guild.addMember(memberSocialId);
         guildRepository.save(guild);
@@ -64,7 +65,7 @@ public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, L
 
     @Transactional
     @Override
-    public void kickFromGuild (UUID ownerSocialId, UUID memberSocialId, UUID guildId) {
+    public void kickFromGuild (UUID ownerSocialId, String username, UUID guildId) {
 
         Guild guild = guildRepository.findById(guildId)
                 .orElseThrow(() -> new EntityNotFoundException("Could not find guild with provided id"));
@@ -73,7 +74,12 @@ public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, L
             throw new RuntimeException("Only the guild owner can kick members.");
         }
 
-        guild.kickMember(memberSocialId);
+        Player player = playerRepository.findByUsername(username)
+                        .orElseThrow(() -> new EntityNotFoundException("Player with provided username not found"));
+
+        UUID memberSocialid = player.getSocialId();
+
+        guild.kickMember(memberSocialid);
         guildRepository.save(guild);
     }
 

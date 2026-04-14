@@ -33,10 +33,10 @@ public class GuildController {
     @DeleteMapping("/{guildId}/members/{memberId}/owner/{ownerId}")
     public ResponseEntity<Void> kickMember(
             @PathVariable UUID guildId,
-            @PathVariable UUID memberId,
+            @PathVariable String username,
             @PathVariable UUID ownerId
     ) {
-        kickFromGuildUseCase.kickFromGuild(ownerId, memberId, guildId);
+        kickFromGuildUseCase.kickFromGuild(ownerId, username, guildId);
         return ResponseEntity.noContent().build();
     }
 

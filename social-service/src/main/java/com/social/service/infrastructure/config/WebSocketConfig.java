@@ -19,7 +19,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry stompEndpointRegistry) {
-        stompEndpointRegistry.addEndpoint("/social-ws").setAllowedOriginPatterns("*").withSockJS();
+        stompEndpointRegistry.addEndpoint("/social-ws").setAllowedOriginPatterns("http://localhost:3000").withSockJS();
     }
 
 }

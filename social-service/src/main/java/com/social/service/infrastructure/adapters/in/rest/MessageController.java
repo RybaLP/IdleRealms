@@ -40,7 +40,7 @@ public class MessageController {
 
     @PostMapping
     public ResponseEntity<Void> sendMessage (@RequestBody @Valid MessageRequestDto messageRequestDto) {
-        sendMessageUseCase.sendMessage(messageRequestDto.senderId(),messageRequestDto.recipientId(),messageRequestDto.topic(),messageRequestDto.content());
+        sendMessageUseCase.sendMessage(messageRequestDto.senderId(),messageRequestDto.recipientUsername(),messageRequestDto.topic(),messageRequestDto.content());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

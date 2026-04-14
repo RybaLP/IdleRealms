@@ -30,4 +30,10 @@ public class SqlPlayerAdapter implements PlayerRepository {
         return playerJpaRepository.findBySocialId(socialId)
                 .map(playerMapper::toDomain);
     }
+
+    @Override
+    public Optional<Player> findByUsername(String username) {
+        return playerJpaRepository.findByUsername(username)
+                .map(playerMapper::toDomain);
+    }
 }

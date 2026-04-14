@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -42,13 +43,16 @@ public class MessageService implements SendMessageUseCase, SendGuildInvitationUs
     }
 
     @Override
-    public void sendMessage(UUID senderId, UUID recipientId, String topic, String content) {
+    public void sendMessage(UUID senderId, String recipientUsername , String topic, String content) {
         if (content == null || content.isBlank()) {
             throw new IllegalArgumentException("Message content cannot be empty");
         }
 
-        Player recipient = playerRepository.findBySocialId(recipientId)
-                .orElseThrow(() -> new EntityNotFoundException("Recipient with ID " + recipientId + " not found"));
+        Player recipient = playerRepository.findByUsername(recipientUsername)
+                .orElseThrow(() -> new EntityNotFoundException("Recipient with nickname " + recipientUsername + " not found"));
+
+        Player sender = playerRepository.findBySocialId(senderId)
+                .orElseThrow(() -> new EntityNotFoundException("Could not find sender with provided id"));
 
         String finalSubject = (topic == null || topic.isBlank()) ? "No Title" : topic;
 
@@ -64,8 +68,17 @@ public class MessageService implements SendMessageUseCase, SendGuildInvitationUs
                 LocalDateTime.now()
         );
 
+        UUID recipientId = recipient.getSocialId();
+        String senderUsername = sender.getUsername();
+
+        Map<String,String> notificationPayload = Map.of(
+                "type", "message",
+                "content", "New scroll from " + senderUsername + ": " + finalSubject
+        );
+
+
         messageRepository.save(message);
-        notificationPort.sendNotification(recipientId,"message");
+        notificationPort.sendNotification(recipientId,notificationPayload);
     }
 
     @Override
@@ -104,6 +117,7 @@ public class MessageService implements SendMessageUseCase, SendGuildInvitationUs
 
         messageRepository.save(message);
         notificationPort.sendNotification(recipientSocialId, java.util.Map.of(
+                "type", "message",
                 "subject", "Guild Invitation",
                 "content", "You were invited to the guild: " + guild.getName()
         ));

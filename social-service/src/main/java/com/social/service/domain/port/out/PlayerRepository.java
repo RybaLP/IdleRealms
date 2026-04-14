@@ -8,4 +8,5 @@ import java.util.UUID;
 public interface PlayerRepository {
     void save (Player player);
     Optional<Player> findBySocialId (UUID socialId);
+    Optional<Player> findByUsername(String nickname);
 }
