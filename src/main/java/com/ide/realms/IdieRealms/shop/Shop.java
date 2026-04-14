@@ -26,8 +26,7 @@ public class Shop {
     private Hero hero;
 
     @Builder.Default
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "shop_id")
+    @OneToMany(mappedBy ="shop",cascade =CascadeType.ALL, orphanRemoval = true)
     @OrderColumn(name = "item_order")
     private List<Item> itemsInOffer = new ArrayList<>();
 

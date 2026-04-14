@@ -34,7 +34,7 @@ public class ShopService {
     public ShopResponseDto getHeroShop (String email) {
 
         Account account = accountRepository.findByEmail(email)
-                .orElseThrow(() -> new AccNotExist(""));
+                .orElseThrow(() -> new AccNotExist("Account with provided email does not exist"));
 
         Hero hero = account.getHero();
 
@@ -47,8 +47,10 @@ public class ShopService {
         if (shop == null){
 //            generate shop items and save
             shop = Shop.builder().hero(hero).build();
+            shop = shopRepository.save(shop);
             refreshShopItems(shop,hero);
             shop = shopRepository.save(shop);
+
         } else if (shouldRefresh(shop) || shop.getItemsInOffer().isEmpty()) {
             refreshShopItems(shop,hero);
             shop = shopRepository.save(shop);
@@ -121,12 +123,14 @@ public class ShopService {
                 .luckBonus(item.getLuckBonus())
                 .heroClass(item.getHeroClass())
                 .requiredLevel(item.getRequiredLevel())
+                .shop(null)
                 .build();
 
         hero.setGold(heroGold - item.getPrice());
         hero.getInventory().add(purchasedItem);
 
         Item newItem = itemService.generateItemEntity(hero.getLevel(), hero.getHeroClass());
+        newItem.setShop(shop);
 
         offer.remove(itemIndex);
         offer.add(itemIndex, newItem);
@@ -141,10 +145,15 @@ public class ShopService {
         );
     }
 
+    @Transactional
     private void refreshShopItems(Shop shop, Hero hero) {
         List<Item> newItems = itemService.generateItemEntities(hero.getLevel(), hero.getHeroClass());
-
         shop.getItemsInOffer().clear();
+
+        for (Item item : newItems) {
+            item.setShop(shop);
+        }
+
         shop.getItemsInOffer().addAll(newItems);
         shop.setLastRefresh(LocalDateTime.now());
     }

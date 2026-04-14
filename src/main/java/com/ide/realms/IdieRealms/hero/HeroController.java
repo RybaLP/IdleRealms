@@ -23,7 +23,6 @@ public class HeroController {
         return ResponseEntity.ok(heroService.getHeroInfo(email));
     }
 
-
 //    guild
     @PostMapping("/guild/deposit")
     public ResponseEntity<Void> depositGoldToGuild ( Authentication authentication,

@@ -42,6 +42,7 @@ public class HeroService {
                 hero.getVisualConfig(),
                 hero.getFinalStatistics(),
                 hero.getBaseStats(),
+                hero.getSocialId(),
                 itemMapper.toListResponse(hero.getInventory()),
                 itemMapper.toResponse(hero.getEquippedHelmet()),
                 itemMapper.toResponse(hero.getEquippedWeapon()),
