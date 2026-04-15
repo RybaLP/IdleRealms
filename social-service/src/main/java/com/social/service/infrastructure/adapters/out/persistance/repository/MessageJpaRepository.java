@@ -12,4 +12,5 @@ import java.util.UUID;
 public interface MessageJpaRepository extends JpaRepository<MessageEntity, UUID> {
     List<MessageEntity> findByRecipientId (UUID recipientId);
     void deleteByIdAndRecipientId (UUID id, UUID recipientId);
+    void deleteAllByRecipientId(UUID recipientId);
 }

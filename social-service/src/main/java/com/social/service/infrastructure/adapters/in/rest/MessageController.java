@@ -26,6 +26,7 @@ public class MessageController {
     private final GetPlayerInboxUseCase getInboxUseCase;
     private final RemoveMessageUseCase removeMessageUseCase;
     private final HandleGuildInvitationUseCase handleGuildInvitationUseCase;
+    private final RemoveAllMessagesUseCase removeAllMessagesUseCase;
 
     private final MessageMapper messageMapper;
 
@@ -64,5 +65,10 @@ public class MessageController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/all/{socialId}")
+    public ResponseEntity<Void> deleteAllMessagesUseCase (@PathVariable UUID socialId) {
+        removeAllMessagesUseCase.remove(socialId);
+        return ResponseEntity.noContent().build();
+    }
 
 }

@@ -10,4 +10,5 @@ public interface MessageRepository {
     Optional<Message> findById(UUID id);
     List<Message> findByRecipientId(UUID recipientId);
     void deleteByIdAndRecipientId(UUID messageId, UUID recipientId);
+    void removeAll(UUID socialId);
 }

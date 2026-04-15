@@ -26,7 +26,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class MessageService implements SendMessageUseCase, SendGuildInvitationUseCase, GetPlayerInboxUseCase, RemoveMessageUseCase, HandleGuildInvitationUseCase {
+public class MessageService implements SendMessageUseCase, SendGuildInvitationUseCase, GetPlayerInboxUseCase, RemoveMessageUseCase, HandleGuildInvitationUseCase , RemoveAllMessagesUseCase{
 
     private final MessageRepository messageRepository;
     private final PlayerRepository playerRepository;
@@ -156,6 +156,13 @@ public class MessageService implements SendMessageUseCase, SendGuildInvitationUs
         }
 
         messageRepository.deleteByIdAndRecipientId(messageId,recipientId);
+    }
+
+    @Transactional
+    public void remove (UUID socialId) {
+        Player player = playerRepository.findBySocialId(socialId)
+                .orElseThrow(() -> new EntityNotFoundException("Could not find player with provided id"));
+        messageRepository.removeAll(socialId);
     }
 
 }

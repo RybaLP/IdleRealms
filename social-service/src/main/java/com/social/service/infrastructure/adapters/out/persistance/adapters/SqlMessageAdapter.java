@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SqlMessageAdapter implements MessageRepository {
 
+
     private final MessageJpaRepository messageJpaRepository;
     private final MessageMapper messageMapper;
 
@@ -42,6 +43,11 @@ public class SqlMessageAdapter implements MessageRepository {
 
     @Override
     public void deleteByIdAndRecipientId(UUID messageId, UUID recipientId) {
-        messageJpaRepository.deleteByIdAndRecipientId(messageId,recipientId);
+        messageJpaRepository.deleteByIdAndRecipientId(messageId, recipientId);
+    }
+
+    @Override
+    public void removeAll(UUID socialId) {
+        messageJpaRepository.deleteAllByRecipientId(socialId);
     }
 }
