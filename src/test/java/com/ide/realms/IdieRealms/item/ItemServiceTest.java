@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
@@ -111,7 +110,7 @@ class ItemServiceTest {
             );
 
             when(itemTemplateRepository.find6RandomTemplates(heroClass.name()))
-                    .thenReturn(Optional.of(items));
+                    .thenReturn(items);
 
 //            when
             List<Item> result = itemService.generateItemEntities(heroLvl,heroClass);
@@ -131,7 +130,7 @@ class ItemServiceTest {
             int heroLvl = 10;
 
             when(itemTemplateRepository.find6RandomTemplates(heroClass.name()))
-                    .thenReturn(Optional.of(List.of(itemTemplate)));
+                    .thenReturn(List.of(itemTemplate));
 
 //            when
             Item item = itemService.generateItemEntities(heroLvl,heroClass).get(0);
@@ -151,7 +150,7 @@ class ItemServiceTest {
             HeroClass heroClass = HeroClass.WARRIOR;
 
             when(itemTemplateRepository.find6RandomTemplates(heroClass.name()))
-                    .thenReturn(Optional.empty());
+                    .thenReturn(List.of());
 
 
 //            when and then
@@ -177,7 +176,7 @@ class ItemServiceTest {
             int heroLvl = 7;
 
             when(itemTemplateRepository.find6RandomTemplates(heroClass.name()))
-                    .thenReturn(Optional.of(List.of(itemTemplate)));
+                    .thenReturn(List.of(itemTemplate));
 //            when
             Item item = itemService.generateItemEntities(heroLvl, heroClass).get(0);
 

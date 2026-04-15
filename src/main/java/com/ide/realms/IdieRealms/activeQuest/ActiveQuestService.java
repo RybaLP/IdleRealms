@@ -46,7 +46,7 @@ public class ActiveQuestService {
             throw new IllegalMonitorStateException("Hero is already in mission");
         }
 
-        LocalDateTime localDateTime = LocalDateTime.now();
+        LocalDateTime localDateTime = LocalDateTime.now(java.time.ZoneOffset.UTC);
 
         ActiveQuest activeQuest = ActiveQuest.builder()
                 .hero(hero)
@@ -93,9 +93,11 @@ public class ActiveQuestService {
                 .orElseThrow(() -> new IllegalArgumentException(""));
 
 //        checking if time passed
-        if (LocalDateTime.now().isBefore(activeQuest.getFinishTime())) {
+        LocalDateTime now = LocalDateTime.now(java.time.ZoneOffset.UTC);
+
+        if (now.isBefore(activeQuest.getFinishTime())) {
             throw new IllegalStateException("Mission is still in progress. Time left: " +
-                    Duration.between(LocalDateTime.now(), activeQuest.getFinishTime()).getSeconds() + "s");
+                    Duration.between(now, activeQuest.getFinishTime()).getSeconds() + "s");
         }
 
         Monster baseMonster = monsterRepository.findById(activeQuest.getMonsterId())
