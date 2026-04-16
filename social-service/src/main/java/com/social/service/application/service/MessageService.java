@@ -82,12 +82,15 @@ public class MessageService implements SendMessageUseCase, SendGuildInvitationUs
     }
 
     @Override
-    public void sendInvitation(UUID ownerSocialId, UUID recipientSocialId, UUID guildId) {
+    public void sendInvitation(UUID ownerSocialId, String recipientUsername, UUID guildId) {
 
         Guild guild = guildRepository.findById(guildId)
                 .orElseThrow(() -> new EntityNotFoundException("Guild with provided id does not exist"));
 
-        if (ownerSocialId.equals(recipientSocialId)) {
+        Player player = playerRepository.findByUsername(recipientUsername)
+                .orElseThrow(() -> new EntityNotFoundException(""));
+
+        if (ownerSocialId.equals(player.getSocialId())) {
             throw new IllegalArgumentException("Owner can not invite himself!");
         }
 
@@ -106,7 +109,7 @@ public class MessageService implements SendMessageUseCase, SendGuildInvitationUs
         Message message = new Message(
                 UUID.randomUUID(),
                 ownerSocialId,
-                recipientSocialId,
+                player.getSocialId(),
                 "Guild Invitation",
                 subject,
                 MessageType.GUILD_INVITATION,
@@ -116,7 +119,7 @@ public class MessageService implements SendMessageUseCase, SendGuildInvitationUs
         );
 
         messageRepository.save(message);
-        notificationPort.sendNotification(recipientSocialId, java.util.Map.of(
+        notificationPort.sendNotification(player.getSocialId(), java.util.Map.of(
                 "type", "message",
                 "subject", "Guild Invitation",
                 "content", "You were invited to the guild: " + guild.getName()

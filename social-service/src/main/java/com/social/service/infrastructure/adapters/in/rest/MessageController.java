@@ -48,7 +48,7 @@ public class MessageController {
 
     @PostMapping("/invitation")
     public ResponseEntity<Void> sendGuildInvitation (@RequestBody @Valid GuildInvitationRequestDto guildInvitationRequestDto) {
-        sendInvitationUseCase.sendInvitation(guildInvitationRequestDto.ownerSocialId(), guildInvitationRequestDto.recipientSocialId(), guildInvitationRequestDto.guildId());
+        sendInvitationUseCase.sendInvitation(guildInvitationRequestDto.ownerSocialId(), guildInvitationRequestDto.recipientUsername(), guildInvitationRequestDto.guildId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
