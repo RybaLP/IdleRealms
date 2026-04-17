@@ -3,10 +3,12 @@ package com.social.service.application.service;
 import com.social.service.domain.model.Guild;
 import com.social.service.domain.model.Player;
 import com.social.service.domain.port.in.CreateGuildUseCase;
+import com.social.service.domain.port.in.GetPlayerGuildUseCase;
 import com.social.service.domain.port.in.KickFromGuildUseCase;
 import com.social.service.domain.port.in.LeaveGuildUseCase;
 import com.social.service.domain.port.out.GuildRepository;
 import com.social.service.domain.port.out.PlayerRepository;
+import com.social.service.infrastructure.adapters.in.dto.GuildDetailsDto;
 import com.social.service.infrastructure.adapters.out.kafka.producers.GuildEventProducer;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -14,17 +16,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, LeaveGuildUseCase {
+public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, LeaveGuildUseCase , GetPlayerGuildUseCase {
 
     private final PlayerRepository playerRepository;
     private final GuildRepository guildRepository;
     private final GuildEventProducer guildEventProducer;
-
+    private final Map<UUID, List<GuildDetailsDto.ChatMessageDto>> chatHistory = new java.util.concurrent.ConcurrentHashMap<>();
 
     @Override
     @Transactional
@@ -92,4 +96,48 @@ public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, L
         guild.removePlayer(socialId);
         guildRepository.save(guild);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GuildDetailsDto getPlayerGuild(UUID socialId) {
+        Player player = playerRepository.findBySocialId(socialId)
+                .orElseThrow(() -> new EntityNotFoundException("Player not found"));
+
+        if (player.getGuildId() == null) {
+            return null;
+        }
+
+        Guild guild = guildRepository.findById(player.getGuildId())
+                .orElseThrow(() -> new EntityNotFoundException("Guild not found"));
+
+        List<String> nicknames = guildRepository.findNicknamesBySocialIds(guild.getMemberSocialIds());
+
+        List<GuildDetailsDto.GuildMemberDto> memberDtos = nicknames.stream()
+                .map(GuildDetailsDto.GuildMemberDto::new)
+                .toList();
+
+        List<GuildDetailsDto.ChatMessageDto> history = chatHistory.getOrDefault(guild.getId(), List.of());
+
+        return new GuildDetailsDto(
+                guild.getId(),
+                guild.getName(),
+                guild.getCoachLevel(),
+                guild.getTotalGold(),
+                memberDtos,
+                history
+        );
+    }
+
+    public void saveMessageToRam (UUID guildId, GuildDetailsDto.ChatMessageDto message) {
+        List<GuildDetailsDto.ChatMessageDto> buffer = chatHistory.computeIfAbsent(guildId,
+                k -> java.util.Collections.synchronizedList(new java.util.LinkedList<>()));
+
+        synchronized (buffer) {
+            if (buffer.size() >= 30) {
+                buffer.remove(0);
+            }
+            buffer.add(message);
+
+    }}
+
 }

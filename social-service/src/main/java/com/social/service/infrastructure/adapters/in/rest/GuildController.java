@@ -1,10 +1,11 @@
 package com.social.service.infrastructure.adapters.in.rest;
 
-import com.social.service.application.service.GuildService;
 import com.social.service.domain.port.in.CreateGuildUseCase;
+import com.social.service.domain.port.in.GetPlayerGuildUseCase;
 import com.social.service.domain.port.in.KickFromGuildUseCase;
 import com.social.service.domain.port.in.LeaveGuildUseCase;
 import com.social.service.infrastructure.adapters.in.dto.CreateGuildRequestDto;
+import com.social.service.infrastructure.adapters.in.dto.GuildDetailsDto;
 import com.social.service.infrastructure.adapters.in.dto.LeaveGuildDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,18 @@ public class GuildController {
     private final CreateGuildUseCase createGuildUseCase;
     private final KickFromGuildUseCase kickFromGuildUseCase;
     private final LeaveGuildUseCase leaveGuildUseCase;
+    private final GetPlayerGuildUseCase getPlayerGuildUseCase;
 
+    @GetMapping("/player/{socialId}")
+    public ResponseEntity<GuildDetailsDto> getGuildByPlayer (@PathVariable UUID socialId) {
+        GuildDetailsDto guildDetailsDto = getPlayerGuildUseCase.getPlayerGuild(socialId);
+
+        if (guildDetailsDto == null) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(guildDetailsDto);
+    }
 
     @PostMapping
     public ResponseEntity<Void> createGuild (@Valid @RequestBody CreateGuildRequestDto createGuildRequestDto) {

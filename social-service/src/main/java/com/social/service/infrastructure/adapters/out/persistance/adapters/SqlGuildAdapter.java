@@ -8,6 +8,7 @@ import com.social.service.infrastructure.adapters.out.persistance.repository.Gui
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,4 +36,10 @@ public class SqlGuildAdapter implements GuildRepository {
         return guildJpaRepository.findByName(name)
                 .map(guildMapper::toDomain);
     }
+
+    @Override
+    public List<String> findNicknamesBySocialIds(List<UUID> socialIds) {
+        return guildJpaRepository.findUsernamesBySocialIds(socialIds);
+    }
+
 }
