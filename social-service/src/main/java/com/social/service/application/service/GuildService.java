@@ -63,8 +63,15 @@ public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, L
         Guild guild = guildRepository.findById(guildId)
                 .orElseThrow(() -> new EntityNotFoundException("Guild with provided id not found"));
 
+        Player player = playerRepository.findBySocialId(memberSocialId).orElseThrow(() -> new EntityNotFoundException("Player not found"));
+
         guild.addMember(memberSocialId);
         guildRepository.save(guild);
+
+        player.setGuildId(guildId);
+        playerRepository.save(player);
+
+        log.info("Player {} successfully joined guild {}", memberSocialId, guildId);
     }
 
     @Transactional
