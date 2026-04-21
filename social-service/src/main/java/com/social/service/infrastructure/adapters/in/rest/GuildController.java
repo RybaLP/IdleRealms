@@ -1,9 +1,6 @@
 package com.social.service.infrastructure.adapters.in.rest;
 
-import com.social.service.domain.port.in.CreateGuildUseCase;
-import com.social.service.domain.port.in.GetPlayerGuildUseCase;
-import com.social.service.domain.port.in.KickFromGuildUseCase;
-import com.social.service.domain.port.in.LeaveGuildUseCase;
+import com.social.service.domain.port.in.*;
 import com.social.service.infrastructure.adapters.in.dto.CreateGuildRequestDto;
 import com.social.service.infrastructure.adapters.in.dto.GuildDetailsDto;
 import com.social.service.infrastructure.adapters.in.dto.LeaveGuildDto;
@@ -24,6 +21,7 @@ public class GuildController {
     private final KickFromGuildUseCase kickFromGuildUseCase;
     private final LeaveGuildUseCase leaveGuildUseCase;
     private final GetPlayerGuildUseCase getPlayerGuildUseCase;
+    private final DeleteGuildUseCase deleteGuildUseCase;
 
     @GetMapping("/player/{socialId}")
     public ResponseEntity<GuildDetailsDto> getGuildByPlayer (@PathVariable UUID socialId) {
@@ -55,6 +53,14 @@ public class GuildController {
     @PatchMapping("/leave")
     public ResponseEntity<Void> leaveGuild(@RequestBody LeaveGuildDto leaveGuildDto){
         leaveGuildUseCase.leave(leaveGuildDto.socialId(),leaveGuildDto.guildId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{socialId}/{guildId}")
+    public ResponseEntity<Void> deleteGuild(
+            @PathVariable UUID guildId,
+            @PathVariable UUID socialId) {
+        deleteGuildUseCase.delete(guildId,socialId);
         return ResponseEntity.noContent().build();
     }
 

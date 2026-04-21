@@ -42,4 +42,10 @@ public class SqlGuildAdapter implements GuildRepository {
         return guildJpaRepository.findUsernamesBySocialIds(socialIds);
     }
 
+    @Override
+    public void delete (Guild guild) {
+        GuildEntity entity = guildMapper.toEntity(guild);
+        guildJpaRepository.delete(entity);
+    }
+
 }

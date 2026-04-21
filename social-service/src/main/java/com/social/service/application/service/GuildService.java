@@ -2,10 +2,7 @@ package com.social.service.application.service;
 
 import com.social.service.domain.model.Guild;
 import com.social.service.domain.model.Player;
-import com.social.service.domain.port.in.CreateGuildUseCase;
-import com.social.service.domain.port.in.GetPlayerGuildUseCase;
-import com.social.service.domain.port.in.KickFromGuildUseCase;
-import com.social.service.domain.port.in.LeaveGuildUseCase;
+import com.social.service.domain.port.in.*;
 import com.social.service.domain.port.out.GuildRepository;
 import com.social.service.domain.port.out.PlayerRepository;
 import com.social.service.infrastructure.adapters.in.dto.GuildDetailsDto;
@@ -15,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.ErrorResponseException;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +21,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, LeaveGuildUseCase , GetPlayerGuildUseCase {
+public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, LeaveGuildUseCase , GetPlayerGuildUseCase, DeleteGuildUseCase {
 
     private final PlayerRepository playerRepository;
     private final GuildRepository guildRepository;
@@ -133,6 +131,30 @@ public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, L
                 memberDtos,
                 history
         );
+    }
+
+    @Transactional
+    public void delete(UUID guildId, UUID ownerSocialId) {
+        Guild guild = guildRepository.findById(guildId)
+                .orElseThrow(() -> new EntityNotFoundException("Could not find guild"));
+
+        if (!guild.getOwnerSocialId().equals(ownerSocialId)) {
+            throw new IllegalArgumentException("Only the owner can dissolve the guild");
+        }
+
+        if (guild.getMemberSocialIds().size() > 1) {
+            throw new IllegalArgumentException("You must kick all members before dissolving the guild");
+        }
+
+        Player owner = playerRepository.findBySocialId(ownerSocialId)
+                .orElseThrow(() -> new EntityNotFoundException("Owner player record not found"));
+
+        owner.setGuildId(null);
+        playerRepository.save(owner);
+
+        guildRepository.delete(guild);
+
+        log.info("Guild {} successfully dissolved by owner {}", guildId, ownerSocialId);
     }
 
     public void saveMessageToRam (UUID guildId, GuildDetailsDto.ChatMessageDto message) {

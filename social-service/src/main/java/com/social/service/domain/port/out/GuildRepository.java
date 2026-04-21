@@ -11,4 +11,5 @@ public interface GuildRepository {
     Optional<Guild> findById (UUID id);
     Optional<Guild> findByName(String name);
     List<String> findNicknamesBySocialIds (List<UUID> socialIds);
+    void delete (Guild guild);
 }
