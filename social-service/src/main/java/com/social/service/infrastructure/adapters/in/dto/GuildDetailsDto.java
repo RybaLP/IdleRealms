@@ -8,6 +8,7 @@ public record GuildDetailsDto(
         String name,
         int coachLevel,
         long totalGold,
+        boolean isOwner,
         List<GuildMemberDto> members,
         List<ChatMessageDto> history
 ) {

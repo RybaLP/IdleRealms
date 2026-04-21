@@ -1,18 +1,21 @@
 package com.social.service.application.service;
 
+import com.social.service.application.service.events.CancelInvitationsEvent;
+import com.social.service.application.service.events.SendKickMessage;
 import com.social.service.domain.model.Guild;
 import com.social.service.domain.model.Player;
 import com.social.service.domain.port.in.*;
 import com.social.service.domain.port.out.GuildRepository;
+import com.social.service.domain.port.out.NotificationPort;
 import com.social.service.domain.port.out.PlayerRepository;
 import com.social.service.infrastructure.adapters.in.dto.GuildDetailsDto;
 import com.social.service.infrastructure.adapters.out.kafka.producers.GuildEventProducer;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.ErrorResponseException;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,8 @@ public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, L
     private final GuildRepository guildRepository;
     private final GuildEventProducer guildEventProducer;
     private final Map<UUID, List<GuildDetailsDto.ChatMessageDto>> chatHistory = new java.util.concurrent.ConcurrentHashMap<>();
+    private final ApplicationEventPublisher publisher;
+    private final NotificationPort notificationPort;
 
     @Override
     @Transactional
@@ -90,6 +95,23 @@ public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, L
 
         guild.kickMember(memberSocialid);
         guildRepository.save(guild);
+
+        player.setGuildId(null);
+        playerRepository.save(player);
+
+        String topic = "You have been kicked from guild!";
+        String content = "The leader of " + guild.getName() + " has removed you from the members list.";
+
+//      send kick message
+        publisher.publishEvent(
+                new SendKickMessage(ownerSocialId,player.getUsername(),topic,content)
+        );
+
+//        cancel previous invitations
+        publisher.publishEvent(
+                new CancelInvitationsEvent(guildId,player.getSocialId())
+        );
+
     }
 
     @Override
@@ -123,11 +145,14 @@ public class GuildService implements CreateGuildUseCase, KickFromGuildUseCase, L
 
         List<GuildDetailsDto.ChatMessageDto> history = chatHistory.getOrDefault(guild.getId(), List.of());
 
+        boolean isOwner = guild.getOwnerSocialId().equals(player.getSocialId());
+
         return new GuildDetailsDto(
                 guild.getId(),
                 guild.getName(),
                 guild.getCoachLevel(),
                 guild.getTotalGold(),
+                isOwner,
                 memberDtos,
                 history
         );

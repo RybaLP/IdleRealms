@@ -11,4 +11,5 @@ public interface MessageRepository {
     List<Message> findByRecipientId(UUID recipientId);
     void deleteByIdAndRecipientId(UUID messageId, UUID recipientId);
     void removeAll(UUID socialId);
+    void cancelInvitations(UUID guildId, UUID recipientId);
 }

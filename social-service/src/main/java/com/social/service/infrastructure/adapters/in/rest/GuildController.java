@@ -40,7 +40,7 @@ public class GuildController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/{guildId}/members/{memberId}/owner/{ownerId}")
+    @DeleteMapping("/{guildId}/members/{username}/owner/{ownerId}")
     public ResponseEntity<Void> kickMember(
             @PathVariable UUID guildId,
             @PathVariable String username,

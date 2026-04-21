@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SqlMessageAdapter implements MessageRepository {
 
-
     private final MessageJpaRepository messageJpaRepository;
     private final MessageMapper messageMapper;
 
@@ -50,4 +49,11 @@ public class SqlMessageAdapter implements MessageRepository {
     public void removeAll(UUID socialId) {
         messageJpaRepository.deleteAllByRecipientId(socialId);
     }
+
+    @Override
+    public void cancelInvitations(UUID guildId, UUID recipientId) {
+        messageJpaRepository.cancelInvitations(guildId,recipientId);
+    }
+
+
 }

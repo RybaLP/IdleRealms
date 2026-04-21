@@ -1,6 +1,8 @@
 package com.social.service.application.service;
 
 
+import com.social.service.application.service.events.CancelInvitationsEvent;
+import com.social.service.application.service.events.SendKickMessage;
 import com.social.service.domain.model.Guild;
 import com.social.service.domain.model.Message;
 import com.social.service.domain.model.Player;
@@ -15,6 +17,7 @@ import com.social.service.shared.MessageStatus;
 import com.social.service.shared.MessageType;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -166,6 +169,32 @@ public class MessageService implements SendMessageUseCase, SendGuildInvitationUs
         Player player = playerRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new EntityNotFoundException("Could not find player with provided id"));
         messageRepository.removeAll(socialId);
+    }
+
+
+    @EventListener
+    public void handleSendKickMessage(SendKickMessage event) {
+        this.sendMessage(
+                event.senderId(),
+                event.recipientUsername(),
+                event.topic(),
+                event.content()
+        );
+
+        Player player = playerRepository.findByUsername(event.recipientUsername())
+                        .orElseThrow(() -> new EntityNotFoundException("Could not find player with provided id"));
+
+        notificationPort.sendNotification(player.getSocialId(), java.util.Map.of(
+                "type" , "message",
+                "topic" , event.topic(),
+                "content" , event.content()
+        ));
+    }
+
+    @EventListener
+    public void handleCancelInvitations(CancelInvitationsEvent event) {
+        messageRepository.cancelInvitations(event.guildId(), event.recipientId());
+        notificationPort.sendNotification(event.recipientId(), "kickedFromGuild");
     }
 
 }
