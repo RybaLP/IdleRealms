@@ -1,136 +1,164 @@
-Idle Realms Backend
+# Idle Realms — RPG Idle Game Engine
 
-A robust RPG Idle game engine built with Spring Boot 3. This project
-simulates dungeon exploration, automated combat, inventory management,
-and player progression through a secure RESTful API.
+A backend engine for a browser-based RPG Idle game, built with Spring Boot 3.
+The system handles dungeon exploration, automated combat, inventory management,
+and player progression through a secure REST API.
 
-The system is designed with scalability, clean architecture principles,
-and maintainable domain-driven game logic in mind.
+> **Frontend / UI Repository:** [IdleRealms-UI](https://github.com/RybaLP/IdleRealms-UI)
 
-------------------------------------------------------------------------
+---
 
-Features
+## What is Idle Realms?
 
--   JWT-based authentication & authorization
--   Swagger / OpenAPI documentation
--   Dockerized deployment
--   Layered architecture (Controller → Service → Repository → Domain)
--   Automated idle combat system
--   Inventory & equipment management
--   Character progression & leveling system
--   Dungeon exploration logic
--   REST API ready for frontend or mobile integration
+Idle Realms is a passion project combining classic RPG mechanics with idle game
+progression. Players explore dungeons, battle enemies automatically, collect loot,
+and grow their characters — all driven by a clean, well-structured backend engine.
 
-------------------------------------------------------------------------
+The backend is designed with scalability, maintainability, and clean architecture
+in mind. It is fully Dockerized and ready for frontend or mobile integration via REST.
 
-Architecture
+---
 
-The project follows a layered architecture pattern:
+## Architecture
 
--   Controllers – Handle HTTP requests and responses
--   Services – Contain core business and game logic
--   Repositories – Manage data persistence
--   Domain layer – Contains RPG mechanics (combat formulas, stat
-    calculations, progression rules)
+The repository is structured as a **multi-module monorepo** containing two distinct modules:
 
-This ensures: - Clear separation of concerns - Testability of business
-logic - Maintainable code structure - Scalability for future extensions
+- **`src/`** — The core game engine: combat, dungeons, inventory, player progression
+- **`social-service/`** — A self-contained social module handling guilds, messaging,
+  and real-time notifications
 
-------------------------------------------------------------------------
+Both modules are part of the same Gradle build and share the same Docker Compose setup,
+but are architecturally independent. They communicate asynchronously via **Apache Kafka**,
+keeping game logic and social logic fully decoupled.
 
-Game Systems
+The core engine follows a **layered architecture**:
 
-Character System
+- **Controllers** — Handle HTTP requests and map them to use cases
+- **Services** — Contain core business and game logic
+- **Repositories** — Manage data persistence via Spring Data JPA
+- **Domain layer** — RPG mechanics isolated from infrastructure: combat formulas,
+  stat calculations, progression rules
 
--   Base stats (Strength, Vitality, Agility)
--   Experience & leveling system
--   Stat scaling per level
--   Health & regeneration mechanics
+The social-service module follows **Hexagonal Architecture (Ports & Adapters)**,
+keeping business logic completely independent from infrastructure concerns.
 
-Combat System
+---
 
--   Turn-based automated combat
--   Damage calculation based on stats and equipment
--   Critical hit mechanics
--   Defense & mitigation formulas
+## Game Systems
 
-Example damage formula:
+### Character System
+- Base stats: Strength, Vitality, Agility
+- Experience points and level-up system
+- Stat scaling per level
+- Health pool and regeneration mechanics
 
+### Combat System
+- Turn-based automated (idle) combat
+- Damage calculation based on stats and equipped items
+- Critical hit mechanics
+- Defense and mitigation formulas
+
+```
 FinalDamage = (BaseAttack + StrengthModifier) - TargetDefense
+```
 
-Inventory System
+### Inventory System
+- Equipment slots: Weapon, Armor, and more
+- Randomized loot generation on dungeon completion
+- Stat bonuses applied dynamically from equipped items
 
--   Equipment slots (Weapon, Armor, etc.)
--   Randomized loot generation
--   Stat bonuses from equipped items
+### Dungeon System
+- Progressive dungeon stages with increasing difficulty
+- Enemy stat scaling per dungeon level
+- Reward distribution on stage completion
+- Fully automated idle progression loop
 
-Dungeon System
+---
 
--   Progressive dungeon stages
--   Enemy scaling per dungeon level
--   Reward distribution system
--   Automated idle progression
+## API
 
-------------------------------------------------------------------------
+Swagger UI is available locally at:
 
- API Documentation
-
-Swagger UI available at:
-
+```
 http://localhost:8080/swagger-ui.html
+```
 
-API includes endpoints for: - Player management - Combat actions -
-Inventory operations - Dungeon progression
+Endpoints cover:
+- Player management
+- Combat actions
+- Inventory operations
+- Dungeon progression
 
-------------------------------------------------------------------------
+---
 
-🐳 Running with Docker
+## Running with Docker
 
-The project is fully containerized. You don't need to install Java or PostgreSQL locally.
+No local Java or PostgreSQL installation required.
 
-1. Ensure you have **Docker Desktop** installed and running.
-2. Clone the repository:
-   ```bash
-   git clone [https://github.com/RybaLP/IdleRealms.git](https://github.com/RybaLP/IdleRealms.git)
-   cd IdleRealms
-   ```
-3. Launch the entire stack:
+**Prerequisites:** Docker Desktop installed and running.
+
 ```bash
+# Clone the repository
+git clone https://github.com/RybaLP/IdleRealms.git
+cd IdleRealms
+
+# Build and launch the full stack
 docker compose up --build
 ```
 
-4. The API will be available at:
-```bash
-http://localhost:8080
-```
-   
+The API will be available at `http://localhost:8080`.
 
-------------------------------------------------------------------------
+---
 
-Tech Stack
+## Tech Stack
 
--   Java 17+
--   Spring Boot 3
--   Spring Security
--   JWT
--   Hibernate / JPA
--   PostgreSQL
--   Docker
--   Swagger
+| Layer | Technology |
+|---|---|
+| Language | Java 17+ |
+| Framework | Spring Boot 3 |
+| Security | Spring Security + JWT |
+| Persistence | Hibernate / JPA + PostgreSQL |
+| Messaging | Apache Kafka |
+| Documentation | Swagger / OpenAPI |
+| Containerization | Docker |
 
-------------------------------------------------------------------------
+---
 
-Testing
+## Testing
 
--   Unit tests for core game logic
--   Integration tests for REST endpoints
+- Unit tests covering core game logic (combat formulas, stat calculations)
+- Integration tests for REST endpoints
 
-------------------------------------------------------------------------
+---
 
-Project Goals
+## Social Service — Multiplayer Module
 
--   Design a scalable RPG backend system
--   Apply clean architecture principles
--   Separate domain logic from infrastructure
--   Secure REST API with authentication
--   Model complex game mechanics in a maintainable way
+Located in `social-service/`, this module is a self-contained unit within the monorepo
+responsible for all real-time player interactions, guild management, and messaging.
+
+It communicates with the core engine via **Apache Kafka** — game-side events such as
+a player completing a dungeon or leveling up are published to Kafka topics,
+which the social module consumes to trigger notifications or guild-related updates.
+This keeps both modules fully decoupled with no direct service-to-service calls.
+
+### Guild System (Event-Driven)
+
+Internally, the social module uses Spring's `ApplicationEventPublisher` to communicate
+between its own components, eliminating circular dependencies entirely.
+Events like `MemberKickedEvent` and `InvitationAcceptedEvent` flow through the
+application context, keeping the system loosely coupled and easy to extend.
+
+Every guild action (e.g. accepting an invitation) is a fully atomic operation:
+- Updates the guild member list
+- Assigns `guildId` to the player's profile
+- Cancels all other pending invitations in the same transaction
+- 
+
+### Ravens & Scrolls — Notification System
+
+A universal `NotificationPort` handles:
+- Private player-to-player messages
+- Guild invitations with full state lifecycle (pending → accepted / cancelled)
+- System announcements (new member joined, player exiled)
+- Cross-module notifications triggered by Kafka events from the core engine
+
